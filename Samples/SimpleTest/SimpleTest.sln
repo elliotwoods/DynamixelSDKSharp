@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTest", "SimpleTest.csproj", "{B77EDB02-0A2B-4D4D-B633-61700C759830}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamixelSDKSharp", "..\..\..\DynamixelSDKSharp\DynamixelSDKSharp.csproj", "{F79B9599-1D46-4AD1-974C-777B47112FA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamixelSDKSharp", "..\..\DynamixelSDKSharp\DynamixelSDKSharp.csproj", "{F79B9599-1D46-4AD1-974C-777B47112FA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

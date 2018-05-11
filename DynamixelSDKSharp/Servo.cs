@@ -11,26 +11,25 @@ namespace DynamixelSDKSharp
 		Port Port;
 		byte ID;
 
-		public Servo(Port port, byte id, Addresses addresses)
+		public Servo(Port port, byte id, Registers registers)
 		{
 			this.Port = port;
 			this.ID = id;
-			this.Addresses = addresses;
+			this.Registers = registers;
 			this.ReadAll();
 		}
 
 		public Servo(Port port, byte id, string addressTableFilename)
-			: this(port, id, new Addresses())
+			: this(port, id, new Registers())
 		{
-			this.Addresses.Load(addressTableFilename);
+			this.Registers.Load(addressTableFilename);
 		}
 
-		public Addresses Addresses;
+		public Registers Registers;
 
 		public void ReadAll()
 		{
-			var addressDictionary = this.Addresses.AsDictionary();
-			foreach(var iterator in addressDictionary)
+			foreach(var iterator in this.Registers)
 			{
 				this.Port.Read(this.ID, iterator.Value);
 			}
@@ -38,32 +37,20 @@ namespace DynamixelSDKSharp
 
 		public void WriteAll()
 		{
-			var addressDictionary = this.Addresses.AsDictionary();
-			foreach (var iterator in addressDictionary)
+			foreach(var iterator in this.Registers)
 			{
 				this.Port.Write(this.ID, iterator.Value);
 			}
 		}
 
-		public void Write(Channel newValue)
+		public void Write(Register newValue)
 		{
-			//check if we have this address on this servo
-			var dictionary = Addresses.AsDictionary();
-			if(dictionary.ContainsKey(newValue.DataName))
-			{
-				var ourValue = dictionary[newValue.DataName];
-				if (ourValue != newValue)
-				{
-					//if this is not our instance, update it
-					ourValue.Value = newValue.Value;
-				}
+			this.Port.WriteAsync(this.ID, newValue);
+		}
 
-				this.Port.Write(ourValue);
-			}
-			else
-			{
-				throw (new Exception("This servo does not have this Channel"));
-			}
+		public void WriteSync(Register newValue)
+		{
+			this.Port.Write(this.ID, newValue);
 		}
 	}
 }

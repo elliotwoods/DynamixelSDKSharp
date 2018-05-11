@@ -68,7 +68,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\DynamixelSDKSharp\DynamixelSDKSharp.csproj">
+    <ProjectReference Include="..\..\DynamixelSDKSharp\DynamixelSDKSharp.csproj">
       <Project>{f79b9599-1d46-4ad1-974c-777b47112fa2}</Project>
       <Name>DynamixelSDKSharp</Name>
     </ProjectReference>

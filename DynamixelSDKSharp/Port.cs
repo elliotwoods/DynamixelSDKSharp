@@ -25,14 +25,19 @@ namespace DynamixelSDKSharp
 		BaudRate_4_5M = 4500000
 	}
 
-	public class Port
+	public class Port : IDisposable
 	{
 		public bool IsOpen { get; private set; }
+
+		WorkerThread FWorkerThread;
 		int FPortNumber;
 
 		static bool FPacketHandlerInitialised = false;
 
 		public ProtocolVersion ProtocolVersion = ProtocolVersion.ProtocolVersion_2;
+
+		//when writing async, we want to overwrite any registers in the outbox as we go along
+		private Dictionary<byte, Registers> Outbox = new Dictionary<byte, Registers>();
 
 		private void ThrowIfNotOpen()
 		{
@@ -44,31 +49,34 @@ namespace DynamixelSDKSharp
 
 		public Port(string portName, BaudRate baudRate = BaudRate.BaudRate_57600)
 		{
-			try
-			{
-				// Open the port
-				this.FPortNumber = NativeFunctions.portHandler(portName);
-				if (!NativeFunctions.openPort(this.FPortNumber))
+			this.FWorkerThread = new WorkerThread("Port " + portName);
+			this.FWorkerThread.DoSync(() => {
+				try
 				{
-					throw (new Exception("Failed to open port"));
-				}
+					// Open the port
+					this.FPortNumber = NativeFunctions.portHandler(portName);
+					if (!NativeFunctions.openPort(this.FPortNumber))
+					{
+						throw (new Exception("Failed to open port"));
+					}
 
-				// Initialise the packet handler
-				if (!FPacketHandlerInitialised)
+					// Initialise the packet handler
+					if (!FPacketHandlerInitialised)
+					{
+						NativeFunctions.packetHandler();
+						FPacketHandlerInitialised = true;
+					}
+
+					// Initialise the packet handler
+					this.IsOpen = true;
+					this.BaudRate = baudRate;
+				}
+				catch (Exception e)
 				{
-					NativeFunctions.packetHandler();
-					FPacketHandlerInitialised = true;
+					this.IsOpen = false;
+					throw (e);
 				}
-
-				// Initialise the packet handler
-				this.IsOpen = true;
-				this.BaudRate = baudRate;
-			}
-			catch (Exception e)
-			{
-				this.IsOpen = false;
-				throw (e);
-			}
+			});
 		}
 
 		public BaudRate BaudRate
@@ -76,45 +84,49 @@ namespace DynamixelSDKSharp
 			get
 			{
 				this.ThrowIfNotOpen();
-				var baudRateNumber = NativeFunctions.getBaudRate(this.FPortNumber);
+				int baudRateNumber = 0;
+				this.FWorkerThread.DoSync(() => {
+					baudRateNumber = NativeFunctions.getBaudRate(this.FPortNumber);
+				});
 				return (BaudRate)baudRateNumber;
 			}
 
 			set
 			{
 				this.ThrowIfNotOpen();
-				if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)value))) {
-					throw (new Exception("Failed to set baud rate"));
-				}
+				this.FWorkerThread.DoSync(() => {
+					if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)value)))
+					{
+						throw (new Exception("Failed to set baud rate"));
+					}
+				});
 			}
 		}
 
-		public void Write(byte id, Channel channel)
+		private void WriteOnThread(byte id, Register register)
 		{
-			this.ThrowIfNotOpen();
-
-			switch (channel.Size)
+			switch (register.Size)
 			{
 				case 1:
 					NativeFunctions.write1ByteTxRx(this.FPortNumber
 						, (int)this.ProtocolVersion
 						, id
-						, channel.Address
-						, (byte)channel.Value);
+						, register.Address
+						, (byte)register.Value);
 					break;
 				case 2:
 					NativeFunctions.write2ByteTxRx(this.FPortNumber
 						, (int)this.ProtocolVersion
 						, id
-						, channel.Address
-						, (UInt16)channel.Value);
+						, register.Address
+						, (UInt16)register.Value);
 					break;
 				case 4:
 					NativeFunctions.write4ByteTxRx(this.FPortNumber
 						, (int)this.ProtocolVersion
 						, id
-						, channel.Address
-						, channel.Value);
+						, register.Address
+						, (UInt32)register.Value);
 					break;
 				default:
 					throw (new Exception(""));
@@ -139,51 +151,189 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public void Read(byte id, Channel channel)
+		public void Write(byte id, Register register)
 		{
 			this.ThrowIfNotOpen();
 
-			switch (channel.Size)
-			{
-				case 1:
-					channel.Value = (UInt32)NativeFunctions.read1ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, channel.Address);
-					break;
-				case 2:
-					channel.Value = (UInt32)NativeFunctions.read2ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, channel.Address);
-					break;
-				case 4:
-					channel.Value = (UInt32)NativeFunctions.read4ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, channel.Address);
-					break;
-				default:
-					throw (new Exception(""));
-			}
+			this.FWorkerThread.DoSync(() => {
+				WriteOnThread(id, register);
+			});
+		}
 
-			{
-				var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
-				if (result != (int)NativeFunctions.COMM_SUCCESS)
+		private void WriteOutboxAsync()
+		{
+			this.FWorkerThread.Do(() => {
+				Dictionary<byte, Registers> outboxCopy;
+				lock (this.Outbox)
 				{
-					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-					throw (new Exception(errorMessage));
+					outboxCopy = this.Outbox;
+					this.Outbox = new Dictionary<byte, Registers>();
+				}
+
+				foreach (var outboxIterator in outboxCopy)
+				{
+					var registers = outboxIterator.Value;
+					foreach (var registerIterator in registers)
+					{
+						WriteOnThread(outboxIterator.Key, registerIterator.Value);
+					}
+				}
+			});
+		}
+
+		public void WriteAsync(byte id, Register register)
+		{
+			this.ThrowIfNotOpen();
+
+			//add the register to the outbox
+			lock(this.Outbox)
+			{
+				//get the outbox registers set
+				Registers registers = null;
+				if(this.Outbox.ContainsKey(id))
+				{
+					registers = this.Outbox[id];
+				}
+				else
+				{
+					registers = new Registers();
+					this.Outbox.Add(id, registers);
+				}
+
+				//add this register to outbox registers set
+				if (registers.ContainsKey(register.RegisterType))
+				{
+					registers[register.RegisterType] = register;
+				}
+				else
+				{
+					registers.Add(register.RegisterType, register);
 				}
 			}
 
+			//write the outbox
+			this.WriteOutboxAsync();
+		}
+
+		public void WriteAsync(byte id, Registers registers)
+		{
+			this.ThrowIfNotOpen();
+
+			//add the register to the outbox
+			lock (this.Outbox)
 			{
-				var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
-				if (error != 0)
+				//get the outbox registers set
+				Registers outboxRegisters = null;
+				if (this.Outbox.ContainsKey(id))
 				{
-					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-					throw (new Exception(errorMessage));
+					outboxRegisters = this.Outbox[id];
 				}
+				else
+				{
+					outboxRegisters = new Registers();
+					this.Outbox.Add(id, outboxRegisters);
+				}
+
+				//copy all the registers into the outbox registers set
+				foreach(var registerIterator in registers)
+				{
+					if (outboxRegisters.ContainsKey(registerIterator.Key))
+					{
+						outboxRegisters[registerIterator.Key] = registerIterator.Value;
+					}
+					else
+					{
+						outboxRegisters.Add(registerIterator.Key, registerIterator.Value);
+					}
+				}
+			}
+
+			//write the outbox
+			this.WriteOutboxAsync();
+		}
+
+		public void Read(byte id, Register register)
+		{
+			this.ThrowIfNotOpen();
+			this.FWorkerThread.DoSync(() =>
+			{
+				switch (register.Size)
+				{
+					case 1:
+						register.Value = (int)NativeFunctions.read1ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, register.Address);
+						break;
+					case 2:
+						register.Value = (int)NativeFunctions.read2ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, register.Address);
+						break;
+					case 4:
+						register.Value = (int)NativeFunctions.read4ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, register.Address);
+						break;
+					default:
+						throw (new Exception(""));
+				}
+
+				{
+					var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
+					if (result != (int)NativeFunctions.COMM_SUCCESS)
+					{
+						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
+						throw (new Exception(errorMessage));
+					}
+				}
+
+				{
+					var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
+					if (error != 0)
+					{
+						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
+						throw (new Exception(errorMessage));
+					}
+				}
+			});
+		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					this.FWorkerThread.Join();
+				}
+
+				this.FWorkerThread = null;
+				if(this.IsOpen)
+				{
+					NativeFunctions.closePort(this.FPortNumber);
+				}
+
+				disposedValue = true;
 			}
 		}
+
+		~Port() {
+			Dispose(false);
+		}
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		#endregion
 	}
 }
