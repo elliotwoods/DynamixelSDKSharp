@@ -15,6 +15,8 @@ namespace DynamixelSDKSharp
 	[JsonConverter(typeof(StringEnumConverter))]
 	public enum RegisterType
 	{
+		NoValue,
+
 		[EnumMember(Value = "Model Number")]
 		ModelNumber,
 
@@ -286,42 +288,31 @@ namespace DynamixelSDKSharp
 		[EnumMember(Value = "Indirect Data 56")] IndirectData56
 	};
 
-	public class Registers : Dictionary<RegisterType, Register>
+	public class Registers : Dictionary<RegisterType, Register>, ICloneable
 	{
 		public override string ToString()
 		{
 			string result = "";
-			foreach(var register in this)
+			foreach (var register in this)
 			{
 				result = result + register.Value.ToString() + Environment.NewLine;
 			}
 			return result;
 		}
 
-		public void Load(string filename)
+		public object Clone()
 		{
-			using (StreamReader file = new StreamReader(filename))
+			var clone = new Registers();
+			foreach (var pair in this)
 			{
-				var jsonSerializerSettings = new JsonSerializerSettings
-				{
-					ContractResolver = new CamelCasePropertyNamesContractResolver(),
-					Converters = new List<JsonConverter> { new StringEnumConverter { CamelCaseText = true } },
-					NullValueHandling = NullValueHandling.Ignore
-				};
-
-				var json = file.ReadToEnd();
-				JsonConvert.PopulateObject(json, this, jsonSerializerSettings);
-
-				foreach(var register in this)
-				{
-					register.Value.RegisterType = register.Key;
-				}
+				clone.Add(pair.Key, (Register) pair.Value.Clone());
 			}
+			return clone;
 		}
 	}
 
-	[DebuggerDisplay("Value = {Value}, DataName = {DataName}")]
-	public class Register
+	[DebuggerDisplay("Value = {Value}, RegisterType = {RegisterType}")]
+	public class Register : ICloneable
 	{
 		public UInt16 Address { get; set; }
 		public int Size { get; set; }
@@ -330,7 +321,24 @@ namespace DynamixelSDKSharp
 		public string Description { get; set; }
 		public string Access { get; set; }
 		public int Value { get; set; }
+
+		[JsonProperty(PropertyName = "Register Type")]
 		public RegisterType RegisterType { get; set; }
+
+		public object Clone()
+		{
+			var clone = new Register
+			{
+				Address = this.Address,
+				Size = this.Size,
+				DataName = this.DataName,
+				Description = this.Description,
+				Access = this.Access,
+				Value = this.Value,
+				RegisterType = this.RegisterType
+			};
+			return clone;
+		}
 
 		public override string ToString()
 		{

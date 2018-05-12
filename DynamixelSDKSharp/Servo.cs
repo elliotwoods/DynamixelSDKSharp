@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,28 +9,27 @@ namespace DynamixelSDKSharp
 {
 	public class Servo
 	{
-		Port Port;
 		byte ID;
+		public Port Port { get; private set; }
+		public ProductSpecification ProductSpecification { get; private set; }
 
-		public Servo(Port port, byte id, Registers registers)
+		public Servo(Port port, byte id, int modelNumber)
 		{
 			this.Port = port;
 			this.ID = id;
-			this.Registers = registers;
+
+			this.ProductSpecification = ProductDatabase.X.GetProductSpecification(modelNumber);
+
+			this.Registers = (Registers)this.ProductSpecification.Registers.Clone();
 			this.ReadAll();
 		}
-
-		public Servo(Port port, byte id, string addressTableFilename)
-			: this(port, id, new Registers())
-		{
-			this.Registers.Load(addressTableFilename);
-		}
-
+		
+		[JsonIgnore]
 		public Registers Registers;
 
 		public void ReadAll()
 		{
-			foreach(var iterator in this.Registers)
+			foreach (var iterator in this.Registers)
 			{
 				this.Port.Read(this.ID, iterator.Value);
 			}
@@ -37,7 +37,7 @@ namespace DynamixelSDKSharp
 
 		public void WriteAll()
 		{
-			foreach(var iterator in this.Registers)
+			foreach (var iterator in this.Registers)
 			{
 				this.Port.Write(this.ID, iterator.Value);
 			}
@@ -45,12 +45,23 @@ namespace DynamixelSDKSharp
 
 		public void Write(Register newValue)
 		{
-			this.Port.WriteAsync(this.ID, newValue);
+			var register = this.Registers[newValue.RegisterType];
+			register.Value = newValue.Value;
+			this.Port.WriteAsync(this.ID, register);
 		}
 
 		public void WriteSync(Register newValue)
 		{
-			this.Port.Write(this.ID, newValue);
+			var register = this.Registers[newValue.RegisterType];
+			register.Value = newValue.Value;
+			this.Port.Write(this.ID, register);
+		}
+
+		public Register Read(RegisterType registerType)
+		{
+			var register = this.Registers[registerType];
+			this.Port.Read(this.ID, register);
+			return register;
 		}
 	}
 }

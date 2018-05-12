@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -28,6 +29,7 @@ namespace DynamixelSDKSharp
 	public class Port : IDisposable
 	{
 		public bool IsOpen { get; private set; }
+		public string Name { get; private set; }
 
 		WorkerThread FWorkerThread;
 		int FPortNumber;
@@ -39,6 +41,8 @@ namespace DynamixelSDKSharp
 		//when writing async, we want to overwrite any registers in the outbox as we go along
 		private Dictionary<byte, Registers> Outbox = new Dictionary<byte, Registers>();
 
+		private Dictionary<int, Servo> FServos = new Dictionary<int, Servo>();
+
 		private void ThrowIfNotOpen()
 		{
 			if (!this.IsOpen)
@@ -49,6 +53,7 @@ namespace DynamixelSDKSharp
 
 		public Port(string portName, BaudRate baudRate = BaudRate.BaudRate_57600)
 		{
+			this.Name = portName;
 			this.FWorkerThread = new WorkerThread("Port " + portName);
 			this.FWorkerThread.DoSync(() => {
 				try
@@ -100,6 +105,72 @@ namespace DynamixelSDKSharp
 						throw (new Exception("Failed to set baud rate"));
 					}
 				});
+				this.Refresh();
+			}
+		}
+
+		public void Refresh()
+		{
+			List<byte> foundServoIDs = new List<byte>();
+
+			this.FWorkerThread.DoSync(() =>
+			{
+				//send ping
+				NativeFunctions.broadcastPing(this.FPortNumber, (int)this.ProtocolVersion);
+				var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
+				if (result != NativeFunctions.COMM_SUCCESS)
+				{
+					var exceptionString = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
+					throw (new Exception(exceptionString));
+				}
+
+				//get ping results
+				for (byte id = 0; id < NativeFunctions.MAX_ID; id++)
+				{
+					if (NativeFunctions.getBroadcastPingResult(this.FPortNumber, (int)this.ProtocolVersion, (int)id))
+					{
+						foundServoIDs.Add(id);
+					}
+				}
+			});
+
+			//add new found servos
+			foreach(var servoID in foundServoIDs)
+			{
+				if(!this.FServos.ContainsKey(servoID))
+				{
+					var modelNumber = this.Read(servoID, 0, 2);
+					var servo = new Servo(this, servoID, modelNumber);
+					this.FServos.Add(servoID, servo);
+				}
+			}
+
+			//remove any servos not seen any more
+			{
+				var toRemove = this.FServos.Where(pair => !foundServoIDs.Contains((byte)pair.Key))
+								.Select(pair => pair.Key)
+								.ToList();
+				foreach(var key in toRemove)
+				{
+					this.FServos.Remove(key);
+				}
+			}
+		}
+
+		[JsonIgnore]
+		public Dictionary<int, Servo> Servos
+		{
+			get
+			{
+				return this.FServos;
+			}
+		}
+
+		public List<int> ServoIDs
+		{
+			get
+			{
+				return this.FServos.Keys.ToList();
 			}
 		}
 
@@ -129,7 +200,7 @@ namespace DynamixelSDKSharp
 						, (UInt32)register.Value);
 					break;
 				default:
-					throw (new Exception(""));
+					throw (new Exception("Register size not supported"));
 			}
 
 			{
@@ -254,28 +325,34 @@ namespace DynamixelSDKSharp
 
 		public void Read(byte id, Register register)
 		{
+			register.Value = this.Read(id, register.Address, register.Size);
+		}
+
+		public int Read(byte id, ushort address, int size)
+		{
 			this.ThrowIfNotOpen();
+			int value = 0;
 			this.FWorkerThread.DoSync(() =>
 			{
-				switch (register.Size)
+				switch (size)
 				{
 					case 1:
-						register.Value = (int)NativeFunctions.read1ByteTxRx(this.FPortNumber
+						value = (int)NativeFunctions.read1ByteTxRx(this.FPortNumber
 							, (int)this.ProtocolVersion
 							, id
-							, register.Address);
+							, address);
 						break;
 					case 2:
-						register.Value = (int)NativeFunctions.read2ByteTxRx(this.FPortNumber
+						value = (int)NativeFunctions.read2ByteTxRx(this.FPortNumber
 							, (int)this.ProtocolVersion
 							, id
-							, register.Address);
+							, address);
 						break;
 					case 4:
-						register.Value = (int)NativeFunctions.read4ByteTxRx(this.FPortNumber
+						value = (int)NativeFunctions.read4ByteTxRx(this.FPortNumber
 							, (int)this.ProtocolVersion
 							, id
-							, register.Address);
+							, address);
 						break;
 					default:
 						throw (new Exception(""));
@@ -298,6 +375,17 @@ namespace DynamixelSDKSharp
 						throw (new Exception(errorMessage));
 					}
 				}
+			});
+
+			return value;
+		}
+
+		public void Close()
+		{
+			this.ThrowIfNotOpen();
+			this.FWorkerThread.DoSync(() =>
+			{
+				NativeFunctions.closePort(this.FPortNumber);
 			});
 		}
 

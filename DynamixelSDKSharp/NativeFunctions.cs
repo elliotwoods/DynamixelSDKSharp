@@ -28,6 +28,7 @@ namespace DynamixelSDKSharp
 		#region Constants
 		public const int COMM_SUCCESS = 0;
 		public const int COMM_TX_FAIL = -1001;
+		public const int MAX_ID = 252;
 		#endregion
 
 		#region PortHandler
