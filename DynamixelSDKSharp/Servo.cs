@@ -9,7 +9,7 @@ namespace DynamixelSDKSharp
 {
 	public class Servo
 	{
-		byte ID;
+		public byte ID { get; private set; }
 		public Port Port { get; private set; }
 		public ProductSpecification ProductSpecification { get; private set; }
 
@@ -43,25 +43,36 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public void Write(Register newValue)
+		public void Write(Register newValue, bool sync = false)
 		{
-			var register = this.Registers[newValue.RegisterType];
-			register.Value = newValue.Value;
-			this.Port.WriteAsync(this.ID, register);
+			this.WriteValue(newValue.RegisterType, newValue.Value, sync);
 		}
 
-		public void WriteSync(Register newValue)
+		public void WriteValue(RegisterType registerType, int value, bool sync = false)
 		{
-			var register = this.Registers[newValue.RegisterType];
-			register.Value = newValue.Value;
-			this.Port.Write(this.ID, register);
+			var register = this.Registers[registerType];
+			register.Value = value;
+			if (sync)
+			{
+				this.Port.Write(this.ID, register);
+			}
+			else
+			{
+				this.Port.WriteAsync(this.ID, register);
+			}
 		}
 
-		public Register Read(RegisterType registerType)
+		public Register ReadRegister(RegisterType registerType)
 		{
 			var register = this.Registers[registerType];
 			this.Port.Read(this.ID, register);
 			return register;
+		}
+
+		public int ReadValue(RegisterType registerType)
+		{
+			var register = this.ReadRegister(registerType);
+			return register.Value;
 		}
 	}
 }

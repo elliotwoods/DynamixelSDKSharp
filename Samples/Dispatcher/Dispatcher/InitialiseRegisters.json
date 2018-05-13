@@ -1,0 +1,20 @@
+{
+	"Registers": [
+		{
+			"Register Type": "Profile Acceleration",
+			"Value": 1
+		},
+		{
+			"Register Type": "Profile Velocity",
+			"Value": 10
+		},
+		{
+			"Register Type": "Torque Enable",
+			"Value": 1
+		},
+		{
+			"Register Type": "Position I Gain",
+			"Value": 100
+		}
+	]
+}

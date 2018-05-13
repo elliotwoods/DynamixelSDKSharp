@@ -1,0 +1,24 @@
+{
+	"SafetyConstraints": [
+		{
+			"RegisterType": "Present Temperature",
+			"MinValue": 5,
+			"MaxValue": 60,
+			"LogLevel": "Warning"
+		},
+		{
+			"RegisterType": "Present Input Voltage",
+			"MinValue": 110,
+			"MaxValue": 130,
+			"LogLevel": "Error",
+			"Action": "ShutdownOne"
+		},
+		{
+			"RegisterType": "Profile Velocity",
+			"MinValue": 0,
+			"MaxValue": 20,
+			"LogLevel": "Warning",
+			"Action": "ClampValue"
+		}
+	]
+}

@@ -1,7 +1,9 @@
 ﻿using Dispatcher.Requests;
 using DynamixelSDKSharp;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -12,7 +14,7 @@ namespace Dispatcher
 	class PortPool
 	{
 		//Singleton
-		public static PortPool X { get; private set; } = new PortPool();
+		public static readonly PortPool X = new PortPool();
 
 		public Dictionary<string, Port> Ports { get; private set; } = new Dictionary<string, Port>();
 		public Dictionary<int, Servo> Servos { get; private set; }  = new Dictionary<int, Servo>();
@@ -61,7 +63,11 @@ namespace Dispatcher
 				this.Servos.Clear();
 				foreach (var port in this.Ports.Values)
 				{
-					foreach(var portServo in port.Servos)
+					Logger.Log(Logger.Level.Message, String.Format("Searching for servos on port {0}", port.Name));
+
+					var servosFound = new List<int>();
+
+					foreach (var portServo in port.Servos)
 					{
 						if(this.Servos.ContainsKey(portServo.Key))
 						{
@@ -74,8 +80,38 @@ namespace Dispatcher
 						else
 						{
 							this.Servos.Add(portServo.Key, portServo.Value);
+							servosFound.Add(portServo.Key);
 						}
 					}
+
+					var servosFoundStringList = servosFound.Select(x => x.ToString()).ToList();
+					Logger.Log(Logger.Level.Message, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList)));
+				}
+			}
+
+			//initialise settings on servos
+			this.InitialiseAll();
+		}
+
+		public void InitialiseAll()
+		{
+			//load InitialisationRegisters
+			var initialiseRegisters = new
+			{
+				Registers = new List<Register>()
+			};
+			using (StreamReader file = new StreamReader("InitialiseRegisters.json"))
+			{
+				var json = file.ReadToEnd();
+				JsonConvert.PopulateObject(json, initialiseRegisters, ProductDatabase.JsonSerializerSettings);
+			}
+
+			//set the initialisation register values on all Servos
+			foreach (var servo in this.Servos.Values)
+			{
+				foreach (var register in initialiseRegisters.Registers)
+				{
+					servo.Write(register);
 				}
 			}
 		}
@@ -106,6 +142,14 @@ namespace Dispatcher
 
 			//return if successful
 			return this.Servos[servoID];
+		}
+
+		public void ShutdownAll()
+		{
+			foreach(var servo in this.Servos.Values)
+			{
+				servo.WriteValue(RegisterType.TorqueEnable, 0);
+			}
 		}
 	}
 }

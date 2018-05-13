@@ -321,7 +321,6 @@ namespace DynamixelSDKSharp
 		public string Description { get; set; }
 		public string Access { get; set; }
 		public int Value { get; set; }
-
 		[JsonProperty(PropertyName = "Register Type")]
 		public RegisterType RegisterType { get; set; }
 

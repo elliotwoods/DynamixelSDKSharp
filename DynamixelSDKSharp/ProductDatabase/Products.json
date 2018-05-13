@@ -3,7 +3,8 @@
     {
       "Model Number": 311,
       "Model Name": "MX-64 (2.0)",
-      "Config Filename": "MX-64_2.0.json"
+      "Config Filename": "MX-64_2.0.json",
+      "Encoder Resolution" :  4096
     }
   ]
 }

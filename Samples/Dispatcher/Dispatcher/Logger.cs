@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dispatcher
 {
-	class Logger
+	public class Logger
 	{
 		public enum Level
 		{
@@ -19,6 +19,11 @@ namespace Dispatcher
 		public static void Log(Level level, string message)
 		{
 			Console.WriteLine(level.ToString() + ": " + message);
+		}
+
+		public static void Log(Level level, Exception e)
+		{
+			Console.WriteLine(level.ToString() + ": " + e.Message);
 		}
 	}
 }

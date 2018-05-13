@@ -1,0 +1,16 @@
+{
+	"Settings": {
+		"Sleep": 100
+	},
+	"Schedules": [
+		{
+			"Period": 0.1,
+			"Action": "checkSafetyConstraints"
+		},
+		{
+			"Period": 60,
+			"Action": "refresh",
+			"OnStart": "true"
+		}
+	]
+}

@@ -23,6 +23,9 @@ namespace DynamixelSDKSharp
 		[JsonProperty(PropertyName = "Config Filename")]
 		public string ConfigFilename { get; set; }
 
+		[JsonProperty(PropertyName = "Encoder Resolution")]
+		public int EncoderResolution { get; set; }
+
 		[JsonIgnore]
 		public Registers Registers { get; set; }
 	}

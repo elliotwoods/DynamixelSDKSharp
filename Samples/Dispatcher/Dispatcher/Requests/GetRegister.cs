@@ -9,25 +9,12 @@ namespace Dispatcher.Requests
 	class GetRegister : IRequest
 	{
 		public int servo { get; set; }
-		public RegisterType register { get; set; }
-		public bool valueOnly { get; set; } = false;
+		public RegisterType registerType { get; set; }
 
 		public object Perform()
 		{
-			//find the servo
 			var servo = PortPool.X.FindServo(this.servo);
-
-			//send the command (sync)
-			var register = servo.Read(this.register);
-
-			if (valueOnly)
-			{
-				return register.Value;
-			}
-			else
-			{
-				return register;
-			}
+			return servo.ReadRegister(this.registerType);
 		}
 	}
 }
