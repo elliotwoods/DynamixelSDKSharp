@@ -1,7 +1,7 @@
 # DynamixelSDKSharp
 ![Dynamixel motor image](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/dynamixel_x_04.png?raw=true)
 
-Clean, modern object oriented .NET library for controlling Dynamixel actuator products from [Robotis](http://www.robotis.com/).
+Simple to use object oriented .NET library for controlling Dynamixel actuator products from [Robotis](http://www.robotis.com/).
 
 ## Features
 * Automatically detect Ports
