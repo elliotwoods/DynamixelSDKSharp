@@ -3,14 +3,6 @@
 
 Simple to use object oriented .NET library for controlling Dynamixel actuator products from [Robotis](http://www.robotis.com/).
 
-## Features
-* Automatically detect Ports
-* Automatically detect Servos
-* Ports are threaded safely
-* Register address tables can be defined in JSON
-* Dispatcher sample application provides REST API (e.g. can control Servos from remote devices)
-
-## Sample
 ```C#
 var port = new Port("COM6", BaudRate.BaudRate_115200);
 port.Refresh();
@@ -22,13 +14,19 @@ foreach (var servoKeyValue in port.Servos)
 
   servo.WriteValue(RegisterType.TorqueEnable, 1);
 
-  //forwards
   for (int i = 0; i < 4096; i += 5)
   {
     servo.WriteValue(RegisterType.GoalPosition, i);
   }
 }
 ```
+
+## Features
+* Automatically detect Ports
+* Automatically detect Servos
+* Ports are threaded safely
+* Register address tables can be defined in JSON
+* Dispatcher sample application provides REST API (e.g. can control Servos from remote devices)
 
 ## Classes
 
