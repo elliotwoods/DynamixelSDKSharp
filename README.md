@@ -48,11 +48,11 @@ Note that the addresses for each request are shown in the class decorators.
 Dispatcher also supports logging to a local MongoDB server if available. If you would like to disable this feature, then please remove this section from the Schedule.json file:
 
 ```json
-{
-  Period: 0,
-  Action: "initDataLogger",
-  OnStart: "true"
-},
+		{
+			"Period": 0,
+			"Action": "initDataLogger",
+			"OnStart": "true"
+		},
 ```
 
 ## License
