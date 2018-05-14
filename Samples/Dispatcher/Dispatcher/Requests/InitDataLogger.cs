@@ -1,16 +1,16 @@
 ﻿using DynamixelSDKSharp;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
-	[RequestHandler("/shutdownAll")]
-	[Serializable]
-	class ShutdownAll : IRequest
+	[RequestHandler("/initDataLogger")]
+	class InitDataLogger : IRequest
 	{
 		public object Perform()
 		{
-			PortPool.X.ShutdownAll();
+			DataLogger.Database.X.Connect();
 			return new { };
 		}
 	}

@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/checkSafetyConstraints")]
 	[Serializable]
 	class CheckSafetyConstraints : IRequest
 	{
@@ -12,12 +13,12 @@ namespace Dispatcher.Requests
 			var constraints = Safety.Constraints.X;
 			var servos = PortPool.X.Servos.Values;
 
-			foreach(var constraint in constraints)
+			foreach (var constraint in constraints)
 			{
-				foreach(var servo in servos)
+				foreach (var servo in servos)
 				{
 					//Check if constraint has been performed recently
-					if(constraint.NeedsPerform(servo))
+					if (constraint.NeedsPerform(servo))
 					{
 						//If not, perform it now
 						constraint.Perform(servo);

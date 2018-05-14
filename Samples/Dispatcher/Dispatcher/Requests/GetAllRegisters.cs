@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/getAllRegisters", Method = Method.POST)]
 	[Serializable]
 	[DebuggerDisplay("servo = {servo}")]
 	class GetAllRegisters : IRequest

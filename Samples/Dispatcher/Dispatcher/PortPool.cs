@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dispatcher
@@ -15,6 +16,9 @@ namespace Dispatcher
 	{
 		//Singleton
 		public static readonly PortPool X = new PortPool();
+
+		//Lock - only repond function should handle this lock
+		readonly public ReaderWriterLock Lock = new ReaderWriterLock();
 
 		public Dictionary<string, Port> Ports { get; private set; } = new Dictionary<string, Port>();
 		public Dictionary<int, Servo> Servos { get; private set; }  = new Dictionary<int, Servo>();
@@ -33,10 +37,10 @@ namespace Dispatcher
 				{
 					if (!this.Ports.ContainsKey(portName))
 					{
-						Logger.Log(Logger.Level.Message, String.Format("Found port : {0}", portName));
+						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0}", portName));
 
 						var port = new Port(portName, BaudRate.BaudRate_115200);
-						Logger.Log(Logger.Level.Message, String.Format("Connected to port : {0} (IsOpen = {1})", portName, port.IsOpen));
+						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", portName, port.IsOpen));
 
 						this.Ports.Add(portName, port);
 					}
@@ -63,7 +67,8 @@ namespace Dispatcher
 				this.Servos.Clear();
 				foreach (var port in this.Ports.Values)
 				{
-					Logger.Log(Logger.Level.Message, String.Format("Searching for servos on port {0}", port.Name));
+					Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Searching for servos on port {0}", port.Name));
+					port.Refresh();
 
 					var servosFound = new List<int>();
 
@@ -71,7 +76,7 @@ namespace Dispatcher
 					{
 						if(this.Servos.ContainsKey(portServo.Key))
 						{
-							Logger.Log(Logger.Level.Warning
+							Logger.Log<PortPool>(Logger.Level.Warning
 								, String.Format("2 servo have been found with the same ID ({0}) on ports {1} and {2}"
 									, portServo.Key
 									, portServo.Value.Port.Name
@@ -85,7 +90,7 @@ namespace Dispatcher
 					}
 
 					var servosFoundStringList = servosFound.Select(x => x.ToString()).ToList();
-					Logger.Log(Logger.Level.Message, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList)));
+					Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList)));
 				}
 			}
 
@@ -128,16 +133,7 @@ namespace Dispatcher
 		{
 			if (!this.Servos.ContainsKey(servoID))
 			{
-				//we didn't find our servo
-
-				//search for servos
-				this.Refresh();
-
-				//try again
-				if (!this.Servos.ContainsKey(servoID))
-				{
-					throw (new Exception(String.Format("Servo #{0} is not mapped to any serial port.", servoID)));
-				}
+				throw (new Exception(String.Format("Servo #{0} is not mapped to any serial port.", servoID)));
 			}
 
 			//return if successful

@@ -150,6 +150,8 @@ namespace DynamixelSDKSharp
 							}
 							catch (Exception e)
 							{
+								Console.WriteLine("Exception in Worker Thread");
+								Console.WriteLine(e.Message);
 								this.ExceptionsInThread.Add(e);
 							}
 						}

@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/getServos")]
 	[Serializable]
 	class GetServos : IRequest
 	{

@@ -22,9 +22,12 @@ namespace Dispatcher
 		}
 
 		[Serializable]
+		[DebuggerDisplay("{Action} : T - {TimeToNextCall}")]
 		public class Schedule
 		{
+			//If Period <= 0, then the Schedule will not be active
 			public double Period { get; set; } = 0.0;
+
 			public string Action { get; set; }
 			public bool OnStart { get; set; } = false;
 
@@ -37,6 +40,21 @@ namespace Dispatcher
 				var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
 				this.LastPerformed = DateTime.Now;
+			}
+
+			public TimeSpan TimeToNextCall
+			{
+				get
+				{
+					if (this.Period > 0)
+					{
+						return (LastPerformed + TimeSpan.FromSeconds(this.Period)) - DateTime.Now;
+					}
+					else
+					{
+						return TimeSpan.Zero;
+					}
+				}
 			}
 		}
 
@@ -63,7 +81,7 @@ namespace Dispatcher
 			}
 			catch (Exception e)
 			{
-				Logger.Log(Logger.Level.Error, e);
+				Logger.Log<Scheduler>(Logger.Level.Error, e);
 			}
 		}
 
@@ -98,13 +116,28 @@ namespace Dispatcher
 					//perform all schedules
 					foreach (var schedule in this.Schedules)
 					{
-						if ((now - schedule.LastPerformed).TotalSeconds > schedule.Period)
+						if(schedule.Period <= 0)
 						{
-							schedule.Perform();
+							//This means that the scheduler doesn't run on timer (e.g. only runs on start)
 						}
+						else
+						{
+							//check if we need to run this item
+							if ((now - schedule.LastPerformed).TotalSeconds > schedule.Period)
+							{
+								try
+								{
+									schedule.Perform();
+								}
+								catch(Exception e)
+								{
+									Logger.Log<Scheduler>(Logger.Level.Error, e);
+								}
+							}
+						}
+						
 					}
 				}
-				
 
 				//sleep
 				Thread.Sleep(this.Settings.Sleep);

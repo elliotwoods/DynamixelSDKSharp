@@ -13,7 +13,7 @@ namespace Dispatcher
 			//Singleton
 			public static readonly Constraints X = new Constraints();
 
-			public const string Filename = "SafetyConstraints.json";
+			public const string Filename = "./Safety/Constraints.json";
 
 			Constraints()
 			{
@@ -23,7 +23,7 @@ namespace Dispatcher
 				}
 				catch(Exception e)
 				{
-					Logger.Log(Logger.Level.Error, e);
+					Logger.Log<Constraints>(Logger.Level.Error, e);
 				}
 			}
 
@@ -89,7 +89,7 @@ namespace Dispatcher
 					//value is outside of range
 
 					//always log
-					Logger.Log(this.LogLevel, String.Format("Servo {0} register {1} has value {2} which is out of range ({3}->{4}). Performing action {5}."
+					Logger.Log<Constraints>(this.LogLevel, String.Format("Servo {0} register {1} has value {2} which is out of range ({3}->{4}). Performing action {5}."
 						, servo.ID
 						, this.RegisterType.ToString()
 						, value

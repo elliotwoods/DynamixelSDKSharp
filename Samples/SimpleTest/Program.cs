@@ -58,15 +58,40 @@ namespace SimpleTest
 				var servoID = servoKeyValue.Key;
 				var servo = servoKeyValue.Value;
 
-				Console.WriteLine("Moving servo {0}", servoID);
+				Console.WriteLine("Moving servo {0} to zero position", servoID);
+
+				//set torque on
+				servo.WriteValue(RegisterType.TorqueEnable, 1);
+
+				//set velocity and acceleration
+				servo.WriteValue(RegisterType.ProfileVelocity, 100);
+				servo.WriteValue(RegisterType.ProfileAcceleration, 1000);
+
+				//go to zero
+				servo.WriteValue(RegisterType.GoalPosition, 0);
+				while(servo.ReadValue(RegisterType.PresentPosition) > 10)
+				{
+					Thread.Sleep(1000);
+				}
+
+				Console.WriteLine("Moving forwards and backwards...");
 
 				//move through all positions
 				{
+					//forwards
 					for (int i = 0; i < 4096; i += 5)
 					{
 						servo.WriteValue(RegisterType.GoalPosition, i);
 						Thread.Sleep(1);
-						Console.Write(".");
+						Console.Write(">");
+					}
+
+					//forwards
+					for (int i = 4096; i > 0; i -= 5)
+					{
+						servo.WriteValue(RegisterType.GoalPosition, i);
+						Thread.Sleep(1);
+						Console.Write("<");
 					}
 				}
 				Console.WriteLine();

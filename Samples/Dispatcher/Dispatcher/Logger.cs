@@ -10,20 +10,52 @@ namespace Dispatcher
 	{
 		public enum Level
 		{
-			Message,
+			Trace,
 			Warning,
 			Error,
 			FatalError
 		};
 
-		public static void Log(Level level, string message)
+		public static void Log<T>(Level level, string message)
 		{
-			Console.WriteLine(level.ToString() + ": " + message);
+			var moduleName = typeof(T).Name;
+
+			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, message));
+
+			DataLogger.Database.X.Log(new DataLogger.SystemLog
+			{
+				Module = moduleName,
+				Message = message
+			});
 		}
 
-		public static void Log(Level level, Exception e)
+		public static void Log<T>(Level level, Exception e)
 		{
-			Console.WriteLine(level.ToString() + ": " + e.Message);
+			Logger.Log(level, e, typeof(T));
+		}
+
+		public static void Log(Level level, Exception e, Type moduleType)
+		{
+			var moduleName = moduleType.Name;
+			Logger.Log(level, e, moduleName);
+		}
+
+		public static void Log(Level level, Exception e, string moduleName)
+		{
+			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, e.Message));
+
+			DataLogger.Database.X.Log(new DataLogger.SystemLog
+			{
+				Module = moduleName,
+				Message = e.Message,
+				LogLevel = level,
+				Exception = new
+				{
+					Traceback = e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList(),
+					Source = e.Source,
+					TargetSite = e.TargetSite
+				}
+			});
 		}
 	}
 }

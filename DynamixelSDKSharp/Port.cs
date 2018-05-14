@@ -78,6 +78,7 @@ namespace DynamixelSDKSharp
 				}
 				catch (Exception e)
 				{
+					NativeFunctions.clearPort(this.FPortNumber);
 					this.IsOpen = false;
 					throw (e);
 				}
@@ -105,7 +106,6 @@ namespace DynamixelSDKSharp
 						throw (new Exception("Failed to set baud rate"));
 					}
 				});
-				this.Refresh();
 			}
 		}
 
@@ -246,7 +246,18 @@ namespace DynamixelSDKSharp
 					var registers = outboxIterator.Value;
 					foreach (var registerIterator in registers)
 					{
-						WriteOnThread(outboxIterator.Key, registerIterator.Value);
+						try
+						{
+							WriteOnThread(outboxIterator.Key, registerIterator.Value);
+						}
+						catch (Exception e)
+						{
+							Console.WriteLine("Exception writing {0}={1} on Servo #{2} : {3}"
+								, registerIterator.Value.RegisterType.ToString()
+								, registerIterator.Value.Value
+								, outboxIterator.Key
+								, e.Message);
+						}
 					}
 				}
 			});
@@ -274,6 +285,7 @@ namespace DynamixelSDKSharp
 				//add this register to outbox registers set
 				if (registers.ContainsKey(register.RegisterType))
 				{
+					//Overwrite value if we already have it in the outbox
 					registers[register.RegisterType] = register;
 				}
 				else

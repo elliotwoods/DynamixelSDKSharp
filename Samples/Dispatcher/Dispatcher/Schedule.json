@@ -4,6 +4,11 @@
 	},
 	"Schedules": [
 		{
+			"Period": 0,
+			"Action": "initDataLogger",
+			"OnStart": "true"
+		},
+		{
 			"Period": 0.1,
 			"Action": "checkSafetyConstraints"
 		},

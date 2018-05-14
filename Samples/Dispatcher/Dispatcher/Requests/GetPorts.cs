@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/getPorts")]
 	[Serializable]
 	class GetPorts : IRequest
 	{

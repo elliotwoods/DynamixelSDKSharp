@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/initialiseAll")]
 	[Serializable]
 	class InitialiseAll : IRequest
 	{

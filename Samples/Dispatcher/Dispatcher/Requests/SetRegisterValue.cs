@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/setRegisterValue", Method= Method.POST)]
 	[Serializable]
 	[DebuggerDisplay("servo = {servo}, register = {register.RegisterType}, value = {register.Value}")]
 	class SetRegisterValue : IRequest

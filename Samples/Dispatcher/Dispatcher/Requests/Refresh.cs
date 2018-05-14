@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
+	[RequestHandler("/refresh", ThreadUsage = ThreadUsage.Exclusive)]
 	[Serializable]
 	class Refresh : IRequest
 	{
