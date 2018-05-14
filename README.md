@@ -1,4 +1,5 @@
 # DynamixelSDKSharp
+![Dynamixel motor image](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/dynamixel_x_04.png?raw=true)
 Object oriented .NET approach to controlling Dynamixel hardware.
 
 ## Sample
