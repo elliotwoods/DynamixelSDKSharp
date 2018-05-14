@@ -52,7 +52,8 @@ Dispatcher also supports logging to a local MongoDB server if available. If you 
   Period: 0,
   Action: "initDataLogger",
   OnStart: "true"
-},```
+},
+```
 
 ## License
 
