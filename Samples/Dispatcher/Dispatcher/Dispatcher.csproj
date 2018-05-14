@@ -84,6 +84,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\CheckSafetyConstraints.cs" />
+    <Compile Include="Requests\GetAllRegisters.cs" />
     <Compile Include="Requests\GetPorts.cs" />
     <Compile Include="Requests\GetRegister.cs" />
     <Compile Include="Requests\GetRegisterValue.cs" />

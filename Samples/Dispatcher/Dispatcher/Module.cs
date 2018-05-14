@@ -78,7 +78,7 @@ namespace Dispatcher
 			{
 				return respond(() =>
 				{
-					var request = getRequest<Requests.Refresh>();
+					var request = getRequest<Requests.Index>();
 					return request.Perform();
 				});
 			});
@@ -178,6 +178,15 @@ namespace Dispatcher
 				return respond(() =>
 				{
 					var request = getRequest<Requests.SchedulerDisable>();
+					return request.Perform();
+				});
+			});
+
+			Post("/getAllRegisters", args =>
+			{
+				return respond(() =>
+				{
+					var request = getRequest<Requests.GetAllRegisters>();
 					return request.Perform();
 				});
 			});

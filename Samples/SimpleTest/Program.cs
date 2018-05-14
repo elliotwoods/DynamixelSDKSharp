@@ -41,7 +41,7 @@ namespace SimpleTest
 			{
 				if(servo.Registers.Count == 0)
 				{
-					Console.WriteLine("Failed to load Registers for Model Number = {0}, Model Name = {1}, Config Filename = {2}"
+					Console.WriteLine("Failed to load Registers for Model Number = {0}, Model Name = {1}, Config Filename = {2}. Please check file exists in right location."
 						, servo.ProductSpecification.ModelNumber
 						, servo.ProductSpecification.ModelName
 						, servo.ProductSpecification.ConfigFilename);
@@ -58,15 +58,13 @@ namespace SimpleTest
 				var servoID = servoKeyValue.Key;
 				var servo = servoKeyValue.Value;
 
-				Console.WriteLine("Moving servo {0}", servoKeyValue.Key);
+				Console.WriteLine("Moving servo {0}", servoID);
 
 				//move through all positions
 				{
-					var goalPosition = servo.Registers[RegisterType.GoalPosition];
 					for (int i = 0; i < 4096; i += 5)
 					{
-						goalPosition.Value = i;
-						servo.Write(goalPosition);
+						servo.WriteValue(RegisterType.GoalPosition, i);
 						Thread.Sleep(1);
 						Console.Write(".");
 					}

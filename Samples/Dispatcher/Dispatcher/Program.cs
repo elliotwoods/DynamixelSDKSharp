@@ -36,7 +36,7 @@
 
 				//start scheduler (it will start with making requests to the host, so must be after host starts)
 				Scheduler.X.Start();
-
+				
 				Console.WriteLine("Press ENTER to quit");
 				Console.ReadKey();
 			}
