@@ -37,5 +37,5 @@ The dispatcher is controlled via REST commands.
 
 ## License
 
-DynamixelSDKSharp is by Kimchi and Chips and is available under the MIT License
-NativeFunctions.cs and the native DLL's are from the DynamixelSDK by Robotis, made available under the Apache License 2.0
+DynamixelSDKSharp is by Kimchi and Chips and is available under the [MIT License](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/LICENSE)
+NativeFunctions.cs and the native DLL's are from the DynamixelSDK by Robotis, made available under the [Apache License 2.0](https://github.com/ROBOTIS-GIT/DynamixelSDK/blob/master/LICENSE)
