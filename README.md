@@ -57,3 +57,5 @@ Dispatcher also supports logging to a local MongoDB server if available. If you 
 
 DynamixelSDKSharp is by Kimchi and Chips and is available under the [MIT License](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/LICENSE)
 NativeFunctions.cs and the native DLL's are from the DynamixelSDK by Robotis, made available under the [Apache License 2.0](https://github.com/ROBOTIS-GIT/DynamixelSDK/blob/master/LICENSE)
+
+Dynamixel is a trademark of Robotis Ltd. (Korea).
