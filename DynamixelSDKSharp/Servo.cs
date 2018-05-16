@@ -43,9 +43,17 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public void Write(Register newValue, bool sync = false)
+		public void WriteValue(Register newValue, bool sync = false)
 		{
 			this.WriteValue(newValue.RegisterType, newValue.Value, sync);
+		}
+
+		public void WriteRegisters(Registers registers, bool sync = false)
+		{
+			if (sync)
+			{
+				this.Port.Write(this.ID, registers);
+			}
 		}
 
 		public void WriteValue(RegisterType registerType, int value, bool sync = false)

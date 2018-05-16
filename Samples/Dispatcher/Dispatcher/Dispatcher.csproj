@@ -88,6 +88,7 @@
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -98,6 +99,7 @@
   <ItemGroup>
     <Compile Include="AutoRouting.cs" />
     <Compile Include="DataLogger\Database.cs" />
+    <Compile Include="DataLogger\DataRow.cs" />
     <Compile Include="DataLogger\DataRowAttribute.cs" />
     <Compile Include="DataLogger\SystemLog.cs" />
     <Compile Include="DataLogger\Registers.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\CheckSafetyConstraints.cs" />
+    <Compile Include="Requests\Debug\IDoForAllServos.cs" />
+    <Compile Include="Requests\Debug\ZeroAllServos.cs" />
     <Compile Include="Requests\InitDataLogger.cs" />
     <Compile Include="Requests\GetAllRegisters.cs" />
     <Compile Include="Requests\GetPorts.cs" />
@@ -116,7 +120,9 @@
     <Compile Include="Requests\Index.cs" />
     <Compile Include="Requests\InitialiseAll.cs" />
     <Compile Include="Requests\IRequest.cs" />
+    <Compile Include="Requests\LogAllServoRegisters.cs" />
     <Compile Include="Requests\MoveServo.cs" />
+    <Compile Include="Requests\Debug\NudgeAllServos.cs" />
     <Compile Include="Requests\Refresh.cs" />
     <Compile Include="Requests\Scheduler.cs" />
     <Compile Include="Requests\SetRegister.cs" />
@@ -124,6 +130,7 @@
     <Compile Include="Requests\ShutdownAll.cs" />
     <Compile Include="Safety\Constraints.cs" />
     <Compile Include="Scheduler.cs" />
+    <Compile Include="Utils\ExceptionMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

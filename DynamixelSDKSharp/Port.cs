@@ -121,7 +121,7 @@ namespace DynamixelSDKSharp
 				if (result != NativeFunctions.COMM_SUCCESS)
 				{
 					var exceptionString = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-					throw (new Exception(exceptionString));
+					throw (new Exception("getTxRxResult : " + exceptionString));
 				}
 
 				//get ping results
@@ -208,7 +208,7 @@ namespace DynamixelSDKSharp
 				if (result != (int)NativeFunctions.COMM_SUCCESS)
 				{
 					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-					throw (new Exception(errorMessage));
+					throw (new Exception("getTxRxResult : " + errorMessage));
 				}
 			}
 
@@ -217,7 +217,7 @@ namespace DynamixelSDKSharp
 				if (error != 0)
 				{
 					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-					throw (new Exception(errorMessage));
+					throw (new Exception("getRxPacketError : " + errorMessage));
 				}
 			}
 		}
@@ -228,6 +228,20 @@ namespace DynamixelSDKSharp
 
 			this.FWorkerThread.DoSync(() => {
 				WriteOnThread(id, register);
+			});
+		}
+
+		public void Write(byte id, Registers registers)
+		{
+			this.ThrowIfNotOpen();
+
+			var registersCopy = registers.Clone() as Registers;
+
+			this.FWorkerThread.DoSync(() => {
+				foreach(var register in registersCopy.Values)
+				{
+					WriteOnThread(id, register);
+				}
 			});
 		}
 
@@ -286,11 +300,11 @@ namespace DynamixelSDKSharp
 				if (registers.ContainsKey(register.RegisterType))
 				{
 					//Overwrite value if we already have it in the outbox
-					registers[register.RegisterType] = register;
+					registers[register.RegisterType] = register.Clone() as Register;
 				}
 				else
 				{
-					registers.Add(register.RegisterType, register);
+					registers.Add(register.RegisterType, register.Clone() as Register);
 				}
 			}
 
@@ -322,11 +336,11 @@ namespace DynamixelSDKSharp
 				{
 					if (outboxRegisters.ContainsKey(registerIterator.Key))
 					{
-						outboxRegisters[registerIterator.Key] = registerIterator.Value;
+						outboxRegisters[registerIterator.Key] = registerIterator.Value.Clone() as Register;
 					}
 					else
 					{
-						outboxRegisters.Add(registerIterator.Key, registerIterator.Value);
+						outboxRegisters.Add(registerIterator.Key, registerIterator.Value.Clone() as Register);
 					}
 				}
 			}
@@ -367,7 +381,7 @@ namespace DynamixelSDKSharp
 							, address);
 						break;
 					default:
-						throw (new Exception(""));
+						throw (new Exception(String.Format("Size {0} not supported for register size", size)));
 				}
 
 				{
@@ -375,7 +389,7 @@ namespace DynamixelSDKSharp
 					if (result != (int)NativeFunctions.COMM_SUCCESS)
 					{
 						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-						throw (new Exception(errorMessage));
+						throw (new Exception("getTxRxResult : " + errorMessage));
 					}
 				}
 
@@ -384,7 +398,7 @@ namespace DynamixelSDKSharp
 					if (error != 0)
 					{
 						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-						throw (new Exception(errorMessage));
+						throw (new Exception("getRxPacketError : " + errorMessage));
 					}
 				}
 			});

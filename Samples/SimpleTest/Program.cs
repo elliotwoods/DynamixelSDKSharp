@@ -79,7 +79,7 @@ namespace SimpleTest
 				//move through all positions
 				{
 					//forwards
-					for (int i = 0; i < 4096; i += 5)
+					for (int i = 0; i < 4096; i += 4)
 					{
 						servo.WriteValue(RegisterType.GoalPosition, i);
 						Thread.Sleep(1);
@@ -87,7 +87,7 @@ namespace SimpleTest
 					}
 
 					//forwards
-					for (int i = 4096; i > 0; i -= 5)
+					for (int i = 4095; i > 0; i -= 4)
 					{
 						servo.WriteValue(RegisterType.GoalPosition, i);
 						Thread.Sleep(1);

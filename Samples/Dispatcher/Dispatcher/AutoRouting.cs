@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dispatcher
@@ -49,10 +50,8 @@ namespace Dispatcher
 			//Perform all Routes
 			foreach (var route in AutoRouting.FRoutes)
 			{
-				switch (route.Value.RequestHandlerAttribute.Method)
-				{
-					case Requests.Method.GET:
-						Get(route.Key, args =>
+				if (route.Value.RequestHandlerAttribute.Method.HasFlag(Requests.Method.GET)) {
+					Get(route.Key, args =>
 						{
 							return respond(() =>
 							{
@@ -61,23 +60,21 @@ namespace Dispatcher
 								return request.Perform();
 							}, route.Value);
 						});
-						break;
-					case Requests.Method.POST:
-						Post(route.Key, args =>
+				}
+				if (route.Value.RequestHandlerAttribute.Method.HasFlag(Requests.Method.POST)) {
+
+					Post(route.Key, args =>
+					{
+						return respond(() =>
 						{
-							return respond(() =>
-							{
 								//make an isntance of the request from the incoming request body
 								var getRequestMethod = typeof(AutoRouting).GetMethod("getRequest");
-								var getRequestMethodSpecific = getRequestMethod.MakeGenericMethod(route.Value.Type);
-								var requestUntyped = getRequestMethodSpecific.Invoke(this, null);
-								var request = (Requests.IRequest)requestUntyped;
-								return request.Perform();
-							}, route.Value);
-						});
-						break;
-					default:
-						break;
+							var getRequestMethodSpecific = getRequestMethod.MakeGenericMethod(route.Value.Type);
+							var requestUntyped = getRequestMethodSpecific.Invoke(this, null);
+							var request = (Requests.IRequest)requestUntyped;
+							return request.Perform();
+						}, route.Value);
+					});
 				}
 			}
 		}
@@ -103,6 +100,15 @@ namespace Dispatcher
 
 			try
 			{
+				//set the thread name
+				{
+					var thisThread = Thread.CurrentThread;
+					if (thisThread.Name == null)
+					{
+						thisThread.Name = route.Type.ToString();
+					}
+				}
+
 				//lock the PortPool and perform the request
 				switch (route.RequestHandlerAttribute.ThreadUsage)
 				{
@@ -152,12 +158,7 @@ namespace Dispatcher
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = false,
-					exception = new
-					{
-						message = e.Message,
-						stackTrace = e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
-						source = e.Source
-					}
+					exception = new Utils.ExceptionMessage(e)
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
 			}

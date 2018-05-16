@@ -1,13 +1,12 @@
-﻿using MongoDB.Bson;
-using System;
+﻿using DynamixelSDKSharp;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatcher.DataLogger
 {
-	class Registers
+	[DataRow("Registers")]
+	class Registers : DataRow
 	{
+		public int servo { get; set; }
+		public Dictionary<string, int> registerValues { get; set; } = new Dictionary<string, int>();
 	}
 }

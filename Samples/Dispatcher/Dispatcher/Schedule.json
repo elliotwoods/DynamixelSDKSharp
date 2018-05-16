@@ -13,8 +13,13 @@
 			"Action": "checkSafetyConstraints"
 		},
 		{
-			"Period": 60,
+			"Period": 0,
 			"Action": "refresh",
+			"OnStart": "true"
+		},
+		{
+			"Period": 10,
+			"Action": "logAllServoRegisters",
 			"OnStart": "true"
 		}
 	]

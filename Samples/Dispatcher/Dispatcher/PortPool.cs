@@ -21,7 +21,7 @@ namespace Dispatcher
 		readonly public ReaderWriterLock Lock = new ReaderWriterLock();
 
 		public Dictionary<string, Port> Ports { get; private set; } = new Dictionary<string, Port>();
-		public Dictionary<int, Servo> Servos { get; private set; }  = new Dictionary<int, Servo>();
+		public SortedDictionary<int, Servo> Servos { get; private set; }  = new SortedDictionary<int, Servo>();
 
 		public PortPool()
 		{
@@ -114,10 +114,7 @@ namespace Dispatcher
 			//set the initialisation register values on all Servos
 			foreach (var servo in this.Servos.Values)
 			{
-				foreach (var register in initialiseRegisters.Registers)
-				{
-					servo.Write(register);
-				}
+				servo.WriteRegisters(new Registers(initialiseRegisters.Registers));
 			}
 		}
 

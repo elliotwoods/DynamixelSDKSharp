@@ -290,6 +290,19 @@ namespace DynamixelSDKSharp
 
 	public class Registers : Dictionary<RegisterType, Register>, ICloneable
 	{
+		public Registers()
+		{
+
+		}
+
+		public Registers(IEnumerable<Register> registers)
+		{
+			foreach(var register in registers)
+			{
+				this.Add(register.RegisterType, register);
+			}
+		}
+
 		public override string ToString()
 		{
 			string result = "";
