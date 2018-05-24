@@ -5,9 +5,8 @@ using System.Diagnostics;
 using System.Speech.Synthesis;
 using System.Threading;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.System
 {
-	[RequestHandler("/logAllServoRegisters", Method = Method.GET)]
 	[Serializable]
 	class LogAllServoRegisters : IRequest
 	{
@@ -17,6 +16,9 @@ namespace Dispatcher.Requests
 
 			foreach (var servo in servos.Values)
 			{
+				//Ideally we want to change this later
+				servo.ReadAll();
+
 				var dataRow = new DataLogger.Registers();
 				dataRow.servo = servo.ID;
 

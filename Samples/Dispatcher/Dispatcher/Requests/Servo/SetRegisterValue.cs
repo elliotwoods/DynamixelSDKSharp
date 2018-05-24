@@ -1,21 +1,26 @@
 ﻿using DynamixelSDKSharp;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.Servo
 {
-	[RequestHandler("/setRegister", Method = Method.POST)]
+	[RequestHandler(Method= Method.POST)]
 	[Serializable]
 	[DebuggerDisplay("servo = {servo}, register = {register.RegisterType}, value = {register.Value}")]
-	class SetRegister : IRequest
+	class SetRegisterValue : IRequest
 	{
 		public int servo { get; set; }
-		public Register register { get; set; }
+
+		[JsonProperty(PropertyName = "Register Type")]
+		public RegisterType registerType { get; set; }
+
+		public int Value { get; set; }
 
 		public object Perform()
 		{
 			var servo = PortPool.X.FindServo(this.servo);
-			servo.WriteValue(this.register);
+			servo.WriteValue(this.registerType, this.Value);
 
 			return new { };
 		}

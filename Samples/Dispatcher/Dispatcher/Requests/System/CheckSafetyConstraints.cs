@@ -2,9 +2,8 @@
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.System
 {
-	[RequestHandler("/checkSafetyConstraints")]
 	[Serializable]
 	class CheckSafetyConstraints : IRequest
 	{

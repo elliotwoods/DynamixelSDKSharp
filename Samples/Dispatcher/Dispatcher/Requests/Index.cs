@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests
 {
-	[RequestHandler("/")]
+	[RequestHandler(CustomAddress = "/")]
 	[Serializable]
 	class Index : IRequest
 	{

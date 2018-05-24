@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.Servo
 {
-	[RequestHandler("/getAllRegisters", Method = Method.POST)]
+	[RequestHandler(Method = Method.POST)]
 	[Serializable]
 	[DebuggerDisplay("servo = {servo}")]
 	class GetAllRegisters : IRequest

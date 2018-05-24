@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Nancy.Hosting.Self;
 
 namespace Dispatcher
@@ -40,11 +41,11 @@ namespace Dispatcher
 				//start scheduler (it will start with making requests to the host, so must be after host starts)
 				Scheduler.X.Start();
 
-				Console.WriteLine("Press ENTER to quit");
-				Console.ReadKey();
+				while(true)
+				{
+					Thread.Sleep(10000);
+				}
 			}
-
-			Console.WriteLine("Stopped. Good bye!");
 		}
 	}
 }

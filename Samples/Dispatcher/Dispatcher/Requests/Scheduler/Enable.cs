@@ -2,15 +2,14 @@
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.Scheduler
 {
-	[RequestHandler("/initialiseAll")]
 	[Serializable]
-	class InitialiseAll : IRequest
+	class Enable : IRequest
 	{
 		public object Perform()
 		{
-			PortPool.X.InitialiseAll();
+			Dispatcher.Scheduler.X.Enabled = true;
 			return new { };
 		}
 	}

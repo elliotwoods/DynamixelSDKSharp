@@ -31,15 +31,15 @@ namespace Dispatcher
 			public string Action { get; set; }
 			public bool OnStart { get; set; } = false;
 
-			public DateTime LastPerformed = DateTime.Now;
+			public DateTime LastAttemptPerformed = DateTime.Now;
 
 			public void Perform()
 			{
+				this.LastAttemptPerformed = DateTime.Now;
+
 				var httpRequest = (HttpWebRequest)WebRequest.Create(String.Format("http://localhost:{0}/{1}", Program.Port, this.Action));
 				httpRequest.Method = "GET";
 				var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-
-				this.LastPerformed = DateTime.Now;
 			}
 
 			public TimeSpan TimeToNextCall
@@ -48,7 +48,7 @@ namespace Dispatcher
 				{
 					if (this.Period > 0)
 					{
-						return (LastPerformed + TimeSpan.FromSeconds(this.Period)) - DateTime.Now;
+						return (LastAttemptPerformed + TimeSpan.FromSeconds(this.Period)) - DateTime.Now;
 					}
 					else
 					{
@@ -103,7 +103,14 @@ namespace Dispatcher
 			{
 				if(schedule.OnStart)
 				{
-					schedule.Perform();
+					try
+					{
+						schedule.Perform();
+					}
+					catch (Exception e)
+					{
+						Logger.Log(Logger.Level.Error, e, "Schedule." + schedule.Action);
+					}
 				}
 			}
 
@@ -123,7 +130,7 @@ namespace Dispatcher
 						else
 						{
 							//check if we need to run this item
-							if ((now - schedule.LastPerformed).TotalSeconds > schedule.Period)
+							if ((now - schedule.LastAttemptPerformed).TotalSeconds > schedule.Period)
 							{
 								try
 								{
@@ -131,11 +138,10 @@ namespace Dispatcher
 								}
 								catch(Exception e)
 								{
-									Logger.Log<Scheduler>(Logger.Level.Error, e);
+									Logger.Log(Logger.Level.Error, e, "Schedule." + schedule.Action);
 								}
 							}
 						}
-						
 					}
 				}
 

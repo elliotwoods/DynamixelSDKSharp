@@ -54,6 +54,9 @@
   <PropertyGroup>
     <StartupObject>Dispatcher.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>network_w.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="DnsClient, Version=1.0.7.0, Culture=neutral, PublicKeyToken=4574bb5573c51424, processorArchitecture=MSIL">
       <HintPath>..\packages\DnsClient.1.0.7\lib\net45\DnsClient.dll</HintPath>
@@ -108,26 +111,31 @@
     <Compile Include="PortPool.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Requests\CheckSafetyConstraints.cs" />
-    <Compile Include="Requests\Debug\IDoForAllServos.cs" />
-    <Compile Include="Requests\Debug\ZeroAllServos.cs" />
-    <Compile Include="Requests\InitDataLogger.cs" />
-    <Compile Include="Requests\GetAllRegisters.cs" />
-    <Compile Include="Requests\GetPorts.cs" />
-    <Compile Include="Requests\GetRegister.cs" />
-    <Compile Include="Requests\GetRegisterValue.cs" />
-    <Compile Include="Requests\GetServos.cs" />
+    <Compile Include="Requests\API.cs" />
+    <Compile Include="Requests\Calibrate\LogServoValues.cs" />
+    <Compile Include="Requests\Scheduler\Disable.cs" />
+    <Compile Include="Requests\Scheduler\Enable.cs" />
+    <Compile Include="Requests\Scheduler\Get.cs" />
+    <Compile Include="Requests\Servo\GetRegisterValues.cs" />
+    <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
+    <Compile Include="Requests\Test\IDoForAllServos.cs" />
+    <Compile Include="Requests\Test\ZeroAllServos.cs" />
+    <Compile Include="Requests\System\InitDataLogger.cs" />
+    <Compile Include="Requests\Servo\GetAllRegisters.cs" />
+    <Compile Include="Requests\System\GetPorts.cs" />
+    <Compile Include="Requests\Servo\GetRegister.cs" />
+    <Compile Include="Requests\Servo\GetRegisterValue.cs" />
+    <Compile Include="Requests\System\GetServos.cs" />
     <Compile Include="Requests\Index.cs" />
-    <Compile Include="Requests\InitialiseAll.cs" />
+    <Compile Include="Requests\System\InitialiseAll.cs" />
     <Compile Include="Requests\IRequest.cs" />
-    <Compile Include="Requests\LogAllServoRegisters.cs" />
-    <Compile Include="Requests\MoveServo.cs" />
-    <Compile Include="Requests\Debug\NudgeAllServos.cs" />
-    <Compile Include="Requests\Refresh.cs" />
-    <Compile Include="Requests\Scheduler.cs" />
-    <Compile Include="Requests\SetRegister.cs" />
-    <Compile Include="Requests\SetRegisterValue.cs" />
-    <Compile Include="Requests\ShutdownAll.cs" />
+    <Compile Include="Requests\System\LogAllServoRegisters.cs" />
+    <Compile Include="Requests\Servo\Move.cs" />
+    <Compile Include="Requests\Test\NudgeAllServos.cs" />
+    <Compile Include="Requests\System\Refresh.cs" />
+    <Compile Include="Requests\Servo\SetRegister.cs" />
+    <Compile Include="Requests\Servo\SetRegisterValue.cs" />
+    <Compile Include="Requests\System\ShutdownAll.cs" />
     <Compile Include="Safety\Constraints.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="Utils\ExceptionMessage.cs" />
@@ -141,6 +149,8 @@
     <None Include="Safety\Constraints.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="network.ico" />
+    <Content Include="network_w.ico" />
     <Content Include="Schedule.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

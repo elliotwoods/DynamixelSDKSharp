@@ -18,37 +18,70 @@ namespace Dispatcher
 		public class Route
 		{
 			public Requests.RequestHandlerAttribute RequestHandlerAttribute { get; set; }
-			public Type Type;
+			public Type RequestType;
 		}
 
-		static Dictionary<string, Route> FRoutes = null;
+		public static Dictionary<string, Route> Routes { get; private set; } = null;
 
 		public AutoRouting()
 		{
 			//Add all IRequests to Routes
 			{
-				if (AutoRouting.FRoutes == null) // check that it's first pass
+				if (AutoRouting.Routes == null) // check that it's first pass
 				{
-					AutoRouting.FRoutes = new Dictionary<string, Route>();
+					AutoRouting.Routes = new Dictionary<string, Route>();
 					var assembly = this.GetType().GetTypeInfo().Assembly;
-					var types = assembly.GetTypes();
+
+					//get all types inheriting from IRequest
+					var types = assembly.GetTypes().Where(t => typeof(Requests.IRequest).IsAssignableFrom(t));
 					foreach (var type in types)
 					{
-						var attribute = type.GetCustomAttribute(typeof(Requests.RequestHandlerAttribute)) as Requests.RequestHandlerAttribute;
-						if (attribute != null)
+						if(type.Attributes.HasFlag(TypeAttributes.Abstract))
 						{
-							AutoRouting.FRoutes.Add(attribute.Address, new Route
+							continue;
+						}
+
+						try
+						{
+							string address;
+							{
+								var assemblyAddress = type.FullName.Split('.').ToList();
+								assemblyAddress.RemoveAt(0);
+								assemblyAddress.RemoveAt(0);
+								address = String.Join("/", assemblyAddress);
+							}
+
+							var attribute = type.GetCustomAttribute(typeof(Requests.RequestHandlerAttribute)) as Requests.RequestHandlerAttribute;
+							if (attribute == null)
+							{
+								//if no attribute is set for this class, make a default one
+								attribute = new Requests.RequestHandlerAttribute();
+							} else
+							{
+								//handle custom addresses
+								if (attribute.CustomAddress != null)
+								{
+									address = attribute.CustomAddress;
+								}
+							}
+
+							//add the request to the AutoRouting routes table
+							AutoRouting.Routes.Add(address, new Route
 							{
 								RequestHandlerAttribute = attribute,
-								Type = type
+								RequestType = type
 							});
+						}
+						catch(Exception e)
+						{
+							Logger.Log<AutoRouting>(Logger.Level.Error, e);
 						}
 					}
 				}
 			}
 
 			//Perform all Routes
-			foreach (var route in AutoRouting.FRoutes)
+			foreach (var route in AutoRouting.Routes)
 			{
 				if (route.Value.RequestHandlerAttribute.Method.HasFlag(Requests.Method.GET)) {
 					Get(route.Key, args =>
@@ -56,7 +89,7 @@ namespace Dispatcher
 							return respond(() =>
 							{
 								//make an isntance of the request (no input body)
-								var request = (Requests.IRequest)Activator.CreateInstance(route.Value.Type);
+								var request = (Requests.IRequest)Activator.CreateInstance(route.Value.RequestType);
 								return request.Perform();
 							}, route.Value);
 						});
@@ -69,7 +102,7 @@ namespace Dispatcher
 						{
 								//make an isntance of the request from the incoming request body
 								var getRequestMethod = typeof(AutoRouting).GetMethod("getRequest");
-							var getRequestMethodSpecific = getRequestMethod.MakeGenericMethod(route.Value.Type);
+							var getRequestMethodSpecific = getRequestMethod.MakeGenericMethod(route.Value.RequestType);
 							var requestUntyped = getRequestMethodSpecific.Invoke(this, null);
 							var request = (Requests.IRequest)requestUntyped;
 							return request.Perform();
@@ -105,7 +138,7 @@ namespace Dispatcher
 					var thisThread = Thread.CurrentThread;
 					if (thisThread.Name == null)
 					{
-						thisThread.Name = route.Type.ToString();
+						thisThread.Name = route.RequestType.ToString();
 					}
 				}
 
@@ -153,7 +186,7 @@ namespace Dispatcher
 			}
 			catch (Exception e)
 			{
-				Logger.Log(Logger.Level.Error, e, route.Type);
+				Logger.Log(Logger.Level.Error, e, route.RequestType);
 
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{

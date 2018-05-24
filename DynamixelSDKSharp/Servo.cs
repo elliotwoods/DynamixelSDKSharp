@@ -50,9 +50,24 @@ namespace DynamixelSDKSharp
 
 		public void WriteRegisters(Registers registers, bool sync = false)
 		{
+			var registersToWrite = new Registers();
+			foreach(var register in registers)
+			{
+				//update our local register
+				var ourRegister = this.Registers[register.Key];
+				ourRegister.Value = register.Value.Value;
+
+				//use our register for the write operations
+				registersToWrite.Add(register.Key, ourRegister);
+			}
+
 			if (sync)
 			{
-				this.Port.Write(this.ID, registers);
+				this.Port.Write(this.ID, registersToWrite);
+			}
+			else
+			{
+				this.Port.WriteAsync(this.ID, registersToWrite);
 			}
 		}
 

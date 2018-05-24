@@ -2,15 +2,14 @@
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.Scheduler
 {
-	[RequestHandler("/shutdownAll")]
 	[Serializable]
-	class ShutdownAll : IRequest
+	class Disable : IRequest
 	{
 		public object Perform()
 		{
-			PortPool.X.ShutdownAll();
+			Dispatcher.Scheduler.X.Enabled = false;
 			return new { };
 		}
 	}

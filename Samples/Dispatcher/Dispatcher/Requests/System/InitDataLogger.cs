@@ -3,9 +3,8 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.System
 {
-	[RequestHandler("/initDataLogger")]
 	class InitDataLogger : IRequest
 	{
 		public object Perform()

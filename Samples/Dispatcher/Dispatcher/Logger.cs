@@ -18,8 +18,17 @@ namespace Dispatcher
 
 		public static void Log<T>(Level level, string message)
 		{
-			var moduleName = typeof(T).Name;
+			Logger.Log(level, message, typeof(T));
+		}
 
+		public static void Log(Level level, string message, Type moduleType)
+		{
+			var moduleName = moduleType.Name;
+			Logger.Log(level, message, moduleName);
+		}
+
+		public static void Log(Level level, string message, string moduleName)
+		{
 			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, message));
 
 			DataLogger.Database.X.Log(new DataLogger.SystemLog
@@ -36,7 +45,7 @@ namespace Dispatcher
 
 		public static void Log(Level level, Exception e, Type moduleType)
 		{
-			var moduleName = moduleType.Name;
+			var moduleName = moduleType.FullName;
 			Logger.Log(level, e, moduleName);
 		}
 

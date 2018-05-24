@@ -2,20 +2,22 @@
 using System;
 using System.Diagnostics;
 
-namespace Dispatcher.Requests
+namespace Dispatcher.Requests.Servo
 {
-	[RequestHandler("/getRegisterValue", Method= Method.POST)]
+	[RequestHandler(Method = Method.POST)]
 	[Serializable]
 	[DebuggerDisplay("servo = {servo}, register = {register.RegisterType}, value = {register.Value}")]
-	class GetRegisterValue : IRequest
+	class SetRegister : IRequest
 	{
 		public int servo { get; set; }
-		public RegisterType registerType { get; set; }
+		public Register register { get; set; }
 
 		public object Perform()
 		{
 			var servo = PortPool.X.FindServo(this.servo);
-			return servo.ReadValue(this.registerType);
+			servo.WriteValue(this.register);
+
+			return new { };
 		}
 	}
 }

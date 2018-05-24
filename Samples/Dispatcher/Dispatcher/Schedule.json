@@ -5,21 +5,21 @@
 	"Schedules": [
 		{
 			"Period": 0,
-			"Action": "initDataLogger",
+			"Action": "System/InitDataLogger",
 			"OnStart": "true"
 		},
 		{
 			"Period": 0.1,
-			"Action": "checkSafetyConstraints"
+			"Action": "System/CheckSafetyConstraints"
 		},
 		{
 			"Period": 0,
-			"Action": "refresh",
+			"Action": "System/Refresh",
 			"OnStart": "true"
 		},
 		{
 			"Period": 10,
-			"Action": "logAllServoRegisters",
+			"Action": "System/LogAllServoRegisters",
 			"OnStart": "true"
 		}
 	]
