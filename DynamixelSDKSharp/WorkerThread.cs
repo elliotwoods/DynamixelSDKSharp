@@ -10,11 +10,12 @@ namespace DynamixelSDKSharp
 	class WorkerThread
 	{
 		public delegate void Action();
+
 		class SyncAction
 		{
 			public Action Action;
-			public Exception Exception = null;
-			public Object SyncLock = new object();
+			public Exception ExceptionInThread = null;
+			public Object NotifyCompletion = new object();
 		};
 
 		Thread Thread;
@@ -37,7 +38,7 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		readonly object SyncPrimitive = new object();
+		readonly object NotifyActionAvailable = new object();
 
 		public WorkerThread(string name)
 		{
@@ -63,9 +64,9 @@ namespace DynamixelSDKSharp
 				}
 
 				//notify thread
-				lock (this.SyncPrimitive)
+				lock (this.NotifyActionAvailable)
 				{
-					Monitor.Pulse(this.SyncPrimitive);
+					Monitor.Pulse(this.NotifyActionAvailable);
 				}
 			}
 
@@ -85,35 +86,36 @@ namespace DynamixelSDKSharp
 					Action = Action
 				};
 
-				//add action to queue
-				lock (this.SyncActionQueue)
+				//lock the completion messenger (so it can't pulse before we begin wait)
+				lock (syncAction.NotifyCompletion)
 				{
-					this.SyncActionQueue.Enqueue(syncAction);
-				}
+					//add action to queue
+					lock (this.SyncActionQueue)
+					{
+						this.SyncActionQueue.Enqueue(syncAction);
+					}
+				
+					//notify thread that a new action is available
+					lock (this.NotifyActionAvailable)
+					{
+						Monitor.Pulse(this.NotifyActionAvailable);
+					}
 
-				//notify thread
-				lock (this.SyncPrimitive)
-				{
-					Monitor.Pulse(this.SyncPrimitive);
-				}
-
-				//wait for a response
-				lock (syncAction.SyncLock)
-				{
+					//wait for a response from this action
 					if (timeout == TimeSpan.Zero)
 					{
-						Monitor.Wait(syncAction.SyncLock);
+						Monitor.Wait(syncAction.NotifyCompletion);
 					}
 					else
 					{
-						Monitor.Wait(syncAction.SyncLock, timeout);
+						Monitor.Wait(syncAction.NotifyCompletion, timeout);
 					}
 				}
 
 				//throw exception if any
-				if (syncAction.Exception != null)
+				if (syncAction.ExceptionInThread != null)
 				{
-					throw (syncAction.Exception);
+					throw (syncAction.ExceptionInThread);
 				}
 			}
 		}
@@ -125,7 +127,6 @@ namespace DynamixelSDKSharp
 
 		private void ThreadedFunction()
 		{
-
 			//loop whilst thread is running
 			while (!this.IsJoining)
 			{
@@ -183,11 +184,11 @@ namespace DynamixelSDKSharp
 							}
 							catch (Exception e)
 							{
-								action.Exception = e;
+								action.ExceptionInThread = e;
 							}
-							lock (action.SyncLock)
+							lock (action.NotifyCompletion)
 							{
-								Monitor.Pulse(action.SyncLock);
+								Monitor.Pulse(action.NotifyCompletion);
 							}
 						}
 						else
@@ -198,9 +199,9 @@ namespace DynamixelSDKSharp
 				}
 
 				//wait for notification of next action
-				lock (this.SyncPrimitive)
+				lock (this.NotifyActionAvailable)
 				{
-					Monitor.Wait(SyncPrimitive, TimeSpan.FromMilliseconds(10));
+					Monitor.Wait(NotifyActionAvailable, TimeSpan.FromMilliseconds(10));
 				}
 			}
 		}
@@ -208,9 +209,9 @@ namespace DynamixelSDKSharp
 		public void Join()
 		{
 			this.IsJoining = true;
-			lock (this.SyncPrimitive)
+			lock (this.NotifyActionAvailable)
 			{
-				Monitor.Pulse(this.SyncPrimitive);
+				Monitor.Pulse(this.NotifyActionAvailable);
 			}
 			this.Thread.Join();
 		}
