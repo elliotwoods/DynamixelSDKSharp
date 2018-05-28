@@ -27,5 +27,5 @@
 		"Present Temperature"
 	],
 	"Max Servo Count": 32,
-	"Period" :  1
+	"Period" :  10
 }

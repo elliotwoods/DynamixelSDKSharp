@@ -103,14 +103,16 @@ namespace Dispatcher.Requests.Data
 
 				//check regular logging (choose oldest)
 				{
-					var documents = collection.AsQueryable()
-									.OrderBy(row => row.TimeStamp)
-									.GroupBy(group => new { group.ServoID })
-									.Distinct()
-									.Select(group => group.First().ServoID);
+					var staleTimeForRegularUpdates = DateTime.Now - TimeSpan.FromSeconds(Logger.FSettings.Period);
+
+				var documents = collection.AsQueryable()
+								.OrderByDescending(row => row.TimeStamp)
+								.GroupBy(row => row.ServoID)
+								.Where(group => group.First().TimeStamp < staleTimeForRegularUpdates.ToUniversalTime())
+								.Select(group => group.Key);
 
 					//Ideally we don't want to call ToList first as this means we perform the following operation locally
-					var servosWithOldData = documents.ToList().Distinct().Take(Logger.FSettings.MaxServoCount);
+					var servosWithOldData = documents.Take(Logger.FSettings.MaxServoCount).ToList();
 
 					foreach (var servoWithOldData in servosWithOldData)
 					{
