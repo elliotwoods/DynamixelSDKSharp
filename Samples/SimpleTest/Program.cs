@@ -10,7 +10,7 @@ namespace SimpleTest
 		static void Main(string[] args)
 		{
 			//change these settings
-			var portName = "COM6";
+			var portName = "COM3";
 			var baudRate = BaudRate.BaudRate_115200;
 
 			//open the port

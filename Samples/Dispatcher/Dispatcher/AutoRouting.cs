@@ -25,8 +25,22 @@ namespace Dispatcher
 
 		public AutoRouting()
 		{
-			//Add all IRequests to Routes
-			{
+            //Override default option route - sets CORS headers so that we can make cross domain requests.
+            {
+                Options("/", _ =>
+                {
+                    return new Response();
+                });
+
+                After.AddItemToEndOfPipeline((ctx) => ctx.Response
+                .WithHeader("Access-Control-Allow-Origin", "*")
+                .WithHeader("Access-Control-Allow-Methods", "POST,GET")
+                .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type"));
+            }
+            
+
+            //Add all IRequests to Routes
+            {
 				if (AutoRouting.Routes == null) // check that it's first pass
 				{
 					AutoRouting.Routes = new Dictionary<string, Route>();

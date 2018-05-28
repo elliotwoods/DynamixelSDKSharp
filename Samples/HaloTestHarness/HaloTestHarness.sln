@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaloTestHarness", "HaloTestHarness\HaloTestHarness.csproj", "{03443E6B-0E94-4982-8CE7-8E34EC0783C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamixelSDKSharp", "..\..\DynamixelSDKSharp\DynamixelSDKSharp.csproj", "{F79B9599-1D46-4AD1-974C-777B47112FA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Debug|x64.ActiveCfg = Debug|x64
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Debug|x64.Build.0 = Debug|x64
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Release|x64.ActiveCfg = Release|x64
+		{03443E6B-0E94-4982-8CE7-8E34EC0783C7}.Release|x64.Build.0 = Release|x64
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Debug|x64.ActiveCfg = Debug|x64
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Debug|x64.Build.0 = Debug|x64
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Release|x64.ActiveCfg = Release|x64
+		{F79B9599-1D46-4AD1-974C-777B47112FA2}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1321EFBA-2DE9-45E8-B234-95C2C101D89F}
+	EndGlobalSection
+EndGlobal
