@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dispatcher.DataLogger
+namespace Dispatcher.Database
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	class DataRowAttribute : Attribute

@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace Dispatcher.DataLogger
+namespace Dispatcher.Database
 {
 	abstract class DataRow
 	{

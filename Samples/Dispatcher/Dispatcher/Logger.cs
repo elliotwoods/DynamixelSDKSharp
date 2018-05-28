@@ -31,7 +31,7 @@ namespace Dispatcher
 		{
 			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, message));
 
-			DataLogger.Database.X.Log(new DataLogger.SystemLog
+			Database.Connection.X.Log(new Database.SystemLog
 			{
 				Module = moduleName,
 				Message = message
@@ -53,7 +53,7 @@ namespace Dispatcher
 		{
 			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, e.Message));
 
-			DataLogger.Database.X.Log(new DataLogger.SystemLog
+			Database.Connection.X.Log(new Database.SystemLog
 			{
 				Module = moduleName,
 				Message = e.Message,

@@ -101,11 +101,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoRouting.cs" />
-    <Compile Include="DataLogger\Database.cs" />
-    <Compile Include="DataLogger\DataRow.cs" />
-    <Compile Include="DataLogger\DataRowAttribute.cs" />
-    <Compile Include="DataLogger\SystemLog.cs" />
-    <Compile Include="DataLogger\Registers.cs" />
+    <Compile Include="Database\Connection.cs" />
+    <Compile Include="Database\DataRow.cs" />
+    <Compile Include="Database\DataRowAttribute.cs" />
+    <Compile Include="Database\HighFrequencyRequests.cs" />
+    <Compile Include="Database\SystemLog.cs" />
+    <Compile Include="Database\Registers.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="PortPool.cs" />
@@ -113,14 +114,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\API.cs" />
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
+    <Compile Include="Requests\Data\GetFreshestValues.cs" />
+    <Compile Include="Requests\Data\GetHistoricalValues.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
+    <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
+    <Compile Include="Requests\Data\Logger.cs" />
     <Compile Include="Requests\Test\IDoForAllServos.cs" />
     <Compile Include="Requests\Test\ZeroAllServos.cs" />
-    <Compile Include="Requests\System\InitDataLogger.cs" />
+    <Compile Include="Requests\System\InitDatabase.cs" />
     <Compile Include="Requests\Servo\GetAllRegisters.cs" />
     <Compile Include="Requests\System\GetPorts.cs" />
     <Compile Include="Requests\Servo\GetRegister.cs" />
@@ -143,6 +148,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="InitialiseRegisters.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataLogger.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />

@@ -18,6 +18,8 @@ namespace Dispatcher
 		public Module()
 		{
 			//Module 
+			
+			//We don't use this any more. But this might be useful for debugging Nancy later
 		}
 	}
 }

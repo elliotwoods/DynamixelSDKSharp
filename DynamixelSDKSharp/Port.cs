@@ -41,7 +41,7 @@ namespace DynamixelSDKSharp
 		//when writing async, we want to overwrite any registers in the outbox as we go along
 		private Dictionary<byte, Registers> Outbox = new Dictionary<byte, Registers>();
 
-		private Dictionary<int, Servo> FServos = new Dictionary<int, Servo>();
+		private Dictionary<byte, Servo> FServos = new Dictionary<byte, Servo>();
 
 		private void ThrowIfNotOpen()
 		{
@@ -158,7 +158,7 @@ namespace DynamixelSDKSharp
 		}
 
 		[JsonIgnore]
-		public Dictionary<int, Servo> Servos
+		public Dictionary<byte, Servo> Servos
 		{
 			get
 			{
@@ -166,11 +166,32 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public List<int> ServoIDs
+		public List<byte> ServoIDs
 		{
 			get
 			{
 				return this.FServos.Keys.ToList();
+			}
+		}
+
+		private void CheckTxRxErrors()
+		{
+			{
+				var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
+				if (result != (int)NativeFunctions.COMM_SUCCESS)
+				{
+					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
+					throw (new Exception("getTxRxResult : " + errorMessage));
+				}
+			}
+
+			{
+				var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
+				if (error != 0)
+				{
+					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
+					throw (new Exception("getRxPacketError : " + errorMessage));
+				}
 			}
 		}
 
@@ -203,23 +224,7 @@ namespace DynamixelSDKSharp
 					throw (new Exception("Register size not supported"));
 			}
 
-			{
-				var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
-				if (result != (int)NativeFunctions.COMM_SUCCESS)
-				{
-					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-					throw (new Exception("getTxRxResult : " + errorMessage));
-				}
-			}
-
-			{
-				var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
-				if (error != 0)
-				{
-					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-					throw (new Exception("getRxPacketError : " + errorMessage));
-				}
-			}
+			this.CheckTxRxErrors();
 		}
 
 		public void Write(byte id, Register register)
@@ -384,26 +389,53 @@ namespace DynamixelSDKSharp
 						throw (new Exception(String.Format("Size {0} not supported for register size", size)));
 				}
 
-				{
-					var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
-					if (result != (int)NativeFunctions.COMM_SUCCESS)
-					{
-						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-						throw (new Exception("getTxRxResult : " + errorMessage));
-					}
-				}
-
-				{
-					var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
-					if (error != 0)
-					{
-						var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-						throw (new Exception("getRxPacketError : " + errorMessage));
-					}
-				}
+				this.CheckTxRxErrors();
 			});
 
 			return value;
+		}
+
+		public Dictionary<byte, int> GroupSyncRead(IEnumerable<byte> ids, ushort address, int size)
+		{
+			var results = new Dictionary<byte, int>();
+			this.FWorkerThread.DoSync(() =>
+			{
+				var groupNumber = NativeFunctions.groupSyncRead(this.FPortNumber
+					, (int)this.ProtocolVersion
+					, address
+					, (ushort) size);
+				
+				foreach(var id in ids)
+				{
+					if(!NativeFunctions.groupSyncReadAddParam(groupNumber, id))
+					{
+						throw (new Exception(String.Format("Failed to add Servo {0} to GroupSyncRead request", id)));
+					}
+				}
+
+				NativeFunctions.groupSyncReadTxRxPacket(groupNumber);
+				this.CheckTxRxErrors();
+
+				foreach(var id in ids)
+				{
+					if (!NativeFunctions.groupSyncReadIsAvailable(groupNumber
+						, id
+						, address
+						, (ushort)size))
+					{
+						throw (new Exception(String.Format("Group sync read is not available for Servo {0} on register address {1}"
+							, id
+							, address)));
+					}
+
+					results.Add(id, (int) NativeFunctions.groupSyncReadGetData(groupNumber
+						, id
+						, address
+						, (ushort)size));
+				}
+			});
+
+			return results;
 		}
 
 		public void Close()

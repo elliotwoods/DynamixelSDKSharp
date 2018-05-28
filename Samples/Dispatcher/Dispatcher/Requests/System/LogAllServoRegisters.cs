@@ -19,16 +19,16 @@ namespace Dispatcher.Requests.System
 				//Ideally we want to change this later
 				servo.ReadAll();
 
-				var dataRow = new DataLogger.Registers();
-				dataRow.servo = servo.ID;
+				var dataRow = new Database.Registers();
+				dataRow.ServoID = servo.ID;
 
 				var registers = servo.Registers;
 				foreach(var register in registers)
 				{
-					dataRow.registerValues.Add(register.Key.ToString(), register.Value.Value);
+					dataRow.RegisterValues.Add(register.Key.ToString(), register.Value.Value);
 				}
 
-				DataLogger.Database.X.Log(dataRow);
+				Database.Connection.X.Log(dataRow);
 			}
 			
 			return new { };

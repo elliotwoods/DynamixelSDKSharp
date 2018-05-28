@@ -1,4 +1,4 @@
-﻿namespace Dispatcher.DataLogger
+﻿namespace Dispatcher.Database
 {
 	[DataRow("SystemLog")]
 	class SystemLog : DataRow

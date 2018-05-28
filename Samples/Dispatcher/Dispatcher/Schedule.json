@@ -5,7 +5,7 @@
 	"Schedules": [
 		{
 			"Period": 0,
-			"Action": "System/InitDataLogger",
+			"Action": "System/InitDatabase",
 			"OnStart": "true"
 		},
 		{
@@ -18,8 +18,8 @@
 			"OnStart": "true"
 		},
 		{
-			"Period": 10,
-			"Action": "System/LogAllServoRegisters",
+			"Period": 0.1,
+			"Action": "Data/Logger",
 			"OnStart": "true"
 		}
 	]

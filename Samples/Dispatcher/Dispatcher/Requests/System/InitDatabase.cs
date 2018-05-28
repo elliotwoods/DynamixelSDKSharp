@@ -5,11 +5,11 @@ using System.Diagnostics;
 
 namespace Dispatcher.Requests.System
 {
-	class InitDataLogger : IRequest
+	class InitDatabase : IRequest
 	{
 		public object Perform()
 		{
-			DataLogger.Database.X.Connect();
+			Database.Connection.X.Connect();
 			return new { };
 		}
 	}

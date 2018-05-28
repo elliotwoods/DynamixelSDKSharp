@@ -1,0 +1,31 @@
+{
+	"Registers": [
+		"Torque Enable",
+		"LED",
+		"Status Return Level",
+		"Hardware Error Status",
+
+		"Position D Gain",
+		"Position I Gain",
+		"Position P Gain",
+
+		"Goal PWM",
+		"Goal Current",
+		"Goal Velocity",
+
+		"Profile Acceleration",
+		"Profile Velocity",
+		"Goal Position",
+
+		"Present PWM",
+		"Present Current",
+		"Present Velocity",
+
+		"Present Position",
+
+		"Present Input Voltage",
+		"Present Temperature"
+	],
+	"Max Servo Count": 32,
+	"Period" :  1
+}
