@@ -49,7 +49,7 @@ namespace HaloTestHarness
 
             while (!Console.KeyAvailable)
             {
-                UpdateLineWithColor("Current: " + axis.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
+                UpdateLineWithColor("Present position: " + axis.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
             }
             Console.ReadKey();
 
@@ -90,11 +90,11 @@ namespace HaloTestHarness
 
             while ((Math.Abs(servo.ReadValue(RegisterType.PresentPosition) - position) > 3))
             {
-                UpdateLineWithColor("Current: " + servo.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
+                UpdateLineWithColor("Present position: " + servo.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
             }
         }
 
-        static void sweepLimits(Servo servo)
+        static void sweepLimitsAxis1(Servo servo)
         {
             try
             {
@@ -107,16 +107,50 @@ namespace HaloTestHarness
                 int max = servo.ReadValue(RegisterType.MaxPositionLimit);
                 int min = servo.ReadValue(RegisterType.MinPositionLimit);
                 int center = min + ((max - min) / 2);
-                chalkAndTalk("\rMoving to center");
-                MoveToPositionSync(servo, center);
 
-                chalkAndTalk("\rMoving to maximum limit.");
-                MoveToPositionSync(servo, max);
-
-                chalkAndTalk("\rMoving to minimum limit.");
+                chalkAndTalk("\rMoving to minimum limit.             ");
                 MoveToPositionSync(servo, min);
 
-                chalkAndTalk("\rDisabling Torque");
+                chalkAndTalk("\rMoving to center.               ");
+                MoveToPositionSync(servo, center);
+
+                chalkAndTalk("\rMoving to maximum limit.              ");
+                MoveToPositionSync(servo, max);
+
+                chalkAndTalk("\rDisabling Torque                 ");
+                servo.WriteValue(RegisterType.TorqueEnable, 0);
+            }
+            catch (Exception ex)
+            {
+                WriteLineWithColor("Couldn't achive goal: " + ex.Message, ConsoleColor.Red);
+                Exit();
+            }
+        }
+
+        static void sweepLimitsAxis2(Servo servo)
+        {
+            try
+            {
+                chalkAndTalk("Enabling Torque");
+                servo.WriteValue(RegisterType.TorqueEnable, 1);
+
+                Console.WriteLine("Setting Position I Gain");
+                servo.WriteValue(RegisterType.PositionIGain, 100);
+
+                int max = servo.ReadValue(RegisterType.MaxPositionLimit);
+                int min = servo.ReadValue(RegisterType.MinPositionLimit);
+                int center = 2048;
+
+                chalkAndTalk("\rMoving to maxiumum limit.           ");
+                MoveToPositionSync(servo, max);
+
+                chalkAndTalk("\rMoving to minimum limit.            ");
+                MoveToPositionSync(servo, min);
+
+                chalkAndTalk("\rMoving to center.             ");
+                MoveToPositionSync(servo, center);
+
+                chalkAndTalk("\rDisabling Torque                  ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
             }
             catch (Exception ex)
@@ -137,7 +171,21 @@ namespace HaloTestHarness
             if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit - Properties.Settings.Default.axis1LimitOffset)) Exit();
             if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit + Properties.Settings.Default.axis1LimitOffset)) Exit();
 
-            sweepLimits(axis1Servo);
+            sweepLimitsAxis1(axis1Servo);
+
+
+            WriteLineWithColor("Setting Axis 2 center position. Ensure mirror is not attached and press any key.", ConsoleColor.Cyan);
+            Console.ReadKey(true);
+
+            axis2Servo.WriteValue(RegisterType.TorqueEnable, 1);
+            chalkAndTalk("Torque enabled.");
+            MoveToPositionSync(axis2Servo, 2048);
+
+            WriteLineWithColor("\rAttach mirror and press any key.", ConsoleColor.Cyan);
+            Console.ReadKey(true);
+
+            axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
+            chalkAndTalk("Torque disabled.");
 
             int a2MinLimit = 0;
             while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to forward (weights towards you) position and press any key.", out a2MinLimit)) { };
@@ -148,7 +196,7 @@ namespace HaloTestHarness
             if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit + Properties.Settings.Default.axis2LimitOffset)) Exit();
             if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit - Properties.Settings.Default.axis2LimitOffset)) Exit();
 
-            sweepLimits(axis2Servo);
+            sweepLimitsAxis2(axis2Servo);
         }
 
         static void sweepTest(Servo axis1Servo, Servo axis2Servo)
