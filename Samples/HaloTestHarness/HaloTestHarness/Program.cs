@@ -128,31 +128,25 @@ namespace HaloTestHarness
 
         static void calibrate(Servo axis1Servo, Servo axis2Servo)
         {
-            int a1Center = 0;
-            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to center position and press any key.", out a1Center)) { };
-
             int a1MaxLimit = 0;
-            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) limit position and press any key.", out a1MaxLimit)) { };
+            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) position and press any key.", out a1MaxLimit)) { };
 
-            int a1MinLimit = a1MaxLimit - ((a1MaxLimit - a1Center) * 2);
-            WriteLineWithColor(String.Format("Axis 1 minimum limit calculated as {0}.", a1MinLimit), ConsoleColor.Green);
+            int a1MinLimit = 0;
+            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to clockwise (right edge towards you) limit position and press any key.", out a1MinLimit)) { };
 
-            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit)) Exit();
-            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit)) Exit();
+            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit - Properties.Settings.Default.axis1LimitOffset)) Exit();
+            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit + Properties.Settings.Default.axis1LimitOffset)) Exit();
 
             sweepLimits(axis1Servo);
 
-            int a2Center = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to center (weights down) position and press any key.", out a2Center)) { };
-
             int a2MinLimit = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to minimum (weights towards you) limit and press any key.", out a2MinLimit)) { };
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to forward (weights towards you) position and press any key.", out a2MinLimit)) { };
 
-            int a2MaxLimit = a2MinLimit - ((a2MinLimit - a2Center) * 2);
-            WriteLineWithColor(String.Format("Axis 2 maximum limit calculated as {0}.", a2MaxLimit), ConsoleColor.Green);
+            int a2MaxLimit = 0;
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to backward (weights away from you) limit and press any key.", out a2MaxLimit)) { };
 
-            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit)) Exit();
-            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit)) Exit();
+            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit + Properties.Settings.Default.axis2LimitOffset)) Exit();
+            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit - Properties.Settings.Default.axis2LimitOffset)) Exit();
 
             sweepLimits(axis2Servo);
         }

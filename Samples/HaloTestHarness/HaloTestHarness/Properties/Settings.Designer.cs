@@ -26,6 +26,18 @@ namespace HaloTestHarness.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int axis1LimitOffset {
+            get {
+                return ((int)(this["axis1LimitOffset"]));
+            }
+            set {
+                this["axis1LimitOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
         public int axis2LimitOffset {
             get {
                 return ((int)(this["axis2LimitOffset"]));
