@@ -49,7 +49,7 @@ namespace HaloTestHarness.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM3")]
+        [global::System.Configuration.DefaultSettingValueAttribute("COM4")]
         public string SerialPort {
             get {
                 return ((string)(this["SerialPort"]));
