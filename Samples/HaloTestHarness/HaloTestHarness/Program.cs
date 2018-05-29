@@ -55,6 +55,7 @@ namespace HaloTestHarness
 
             limit = axis.ReadValue(RegisterType.PresentPosition);
             WriteLineWithColor(String.Format("\rLimit value is {0}. Correct? [y/any]", limit), ConsoleColor.Cyan);
+            Console.WriteLine();
 
             if (Console.ReadKey(true).Key == ConsoleKey.Y)
             {
@@ -119,6 +120,8 @@ namespace HaloTestHarness
 
                 chalkAndTalk("\rDisabling Torque                 ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
+
+                Console.WriteLine();
             }
             catch (Exception ex)
             {
@@ -152,6 +155,8 @@ namespace HaloTestHarness
 
                 chalkAndTalk("\rDisabling Torque                  ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
+
+                Console.WriteLine();
             }
             catch (Exception ex)
             {
@@ -167,9 +172,11 @@ namespace HaloTestHarness
             axis1Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
             axis2Servo.WriteValue(RegisterType.MinPositionLimit, 0);
             axis2Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
+            Console.WriteLine();
 
             int a1MaxLimit = 0;
             while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) position and press any key.", out a1MaxLimit)) { };
+            Console.WriteLine();
 
             int a1MinLimit = 0;
             while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to clockwise (right edge towards you) limit position and press any key.", out a1MinLimit)) { };
@@ -178,7 +185,7 @@ namespace HaloTestHarness
             if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit + Properties.Settings.Default.axis1LimitOffset)) Exit();
 
             sweepLimitsAxis1(axis1Servo);
-
+            Console.WriteLine();
 
             WriteLineWithColor("Setting Axis 2 center position. Ensure mirror is not attached and press any key.", ConsoleColor.Cyan);
             Console.ReadKey(true);
@@ -192,9 +199,11 @@ namespace HaloTestHarness
 
             axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
             chalkAndTalk("Torque disabled.");
+            Console.WriteLine();
 
             int a2MinLimit = 0;
             while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to forward (weights towards you) position and press any key.", out a2MinLimit)) { };
+            Console.WriteLine();
 
             int a2MaxLimit = 0;
             while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to backward (weights away from you) limit and press any key.", out a2MaxLimit)) { };
@@ -271,7 +280,7 @@ namespace HaloTestHarness
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine();
                 chalkAndTalk("Torque disabled.");
-
+                Console.WriteLine();
             }
             catch (Exception ex)
             {
@@ -308,7 +317,7 @@ namespace HaloTestHarness
                 axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
                 axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
                 chalkAndTalk("\rTorque disabled.               ");
-
+                Console.WriteLine();
             }
             catch (Exception ex)
             {
@@ -379,6 +388,7 @@ namespace HaloTestHarness
             }
 
             Console.WriteLine("Disabling Torque");
+            Console.WriteLine();
             try
             {
                 axis1Servo.WriteValue(RegisterType.TorqueEnable, 0, true);
@@ -412,12 +422,12 @@ namespace HaloTestHarness
                 }
                 else if (key == '4')
                 {
+                    WriteLineWithColor("Done", ConsoleColor.Magenta);
                     Exit(0);
                 }
 
-                WriteLineWithColor("Complete.", ConsoleColor.Magenta);
+                Console.WriteLine();
             }
-
         }
     }
 }
