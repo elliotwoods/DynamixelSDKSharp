@@ -162,6 +162,12 @@ namespace HaloTestHarness
 
         static void calibrate(Servo axis1Servo, Servo axis2Servo)
         {
+            Console.WriteLine("Clearing axis limits.");
+            axis1Servo.WriteValue(RegisterType.MinPositionLimit, 0);
+            axis1Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
+            axis2Servo.WriteValue(RegisterType.MinPositionLimit, 0);
+            axis2Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
+
             int a1MaxLimit = 0;
             while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) position and press any key.", out a1MaxLimit)) { };
 
