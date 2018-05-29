@@ -111,11 +111,11 @@ namespace HaloTestHarness
                 chalkAndTalk("\rMoving to minimum limit.             ");
                 MoveToPositionSync(servo, min);
 
-                chalkAndTalk("\rMoving to center.               ");
-                MoveToPositionSync(servo, center);
-
                 chalkAndTalk("\rMoving to maximum limit.              ");
                 MoveToPositionSync(servo, max);
+
+                chalkAndTalk("\rMoving to center.               ");
+                MoveToPositionSync(servo, center);
 
                 chalkAndTalk("\rDisabling Torque                 ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
