@@ -122,7 +122,7 @@ namespace HaloTestHarness
             }
             catch (Exception ex)
             {
-                WriteLineWithColor("Couldn't achive goal: " + ex.Message, ConsoleColor.Red);
+                WriteLineWithColor("Dynamixel error: " + ex.Message, ConsoleColor.Red);
                 Exit();
             }
         }
@@ -155,7 +155,7 @@ namespace HaloTestHarness
             }
             catch (Exception ex)
             {
-                WriteLineWithColor("Couldn't achive goal: " + ex.Message, ConsoleColor.Red);
+                WriteLineWithColor("Dynamixel error: " + ex.Message, ConsoleColor.Red);
                 Exit();
             }
         }
@@ -269,7 +269,7 @@ namespace HaloTestHarness
             }
             catch (Exception ex)
             {
-                WriteLineWithColor("Couldn't achieve goals: " + ex.Message, ConsoleColor.Red);
+                WriteLineWithColor("Dynamixel error: " + ex.Message, ConsoleColor.Red);
                 Exit();
             }
         }
@@ -379,7 +379,7 @@ namespace HaloTestHarness
                 axis2Servo.WriteValue(RegisterType.TorqueEnable, 0, true);
             } catch (Exception ex)
             {
-                WriteLineWithColor("Couldn't disable torque: " + ex.Message, ConsoleColor.Red);
+                WriteLineWithColor("Dynamixel error: " + ex.Message, ConsoleColor.Red);
                 Exit();
             }
 
