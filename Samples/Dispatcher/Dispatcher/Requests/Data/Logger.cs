@@ -105,7 +105,7 @@ namespace Dispatcher.Requests.Data
 				{
 					var staleTimeForRegularUpdates = DateTime.Now - TimeSpan.FromSeconds(Logger.FSettings.Period);
 
-				var documents = collection.AsQueryable()
+					var documents = collection.AsQueryable()
 								.OrderByDescending(row => row.TimeStamp)
 								.GroupBy(row => row.ServoID)
 								.Where(group => group.First().TimeStamp < staleTimeForRegularUpdates.ToUniversalTime())
