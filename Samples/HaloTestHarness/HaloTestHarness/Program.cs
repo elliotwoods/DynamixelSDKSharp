@@ -389,28 +389,35 @@ namespace HaloTestHarness
                 Exit();
             }
 
-            WriteLineWithColor("Options:", ConsoleColor.Cyan);
-            WriteLineWithColor("1 - Calibrate", ConsoleColor.Cyan);
-            WriteLineWithColor("2 - Sweep Test", ConsoleColor.Cyan);
-            WriteLineWithColor("3 - Home Servos", ConsoleColor.Cyan);
+            while(true)
+            {
+                WriteLineWithColor("Options:", ConsoleColor.Cyan);
+                WriteLineWithColor("1 - Calibrate", ConsoleColor.Cyan);
+                WriteLineWithColor("2 - Sweep Test", ConsoleColor.Cyan);
+                WriteLineWithColor("3 - Home Servos", ConsoleColor.Cyan);
+                WriteLineWithColor("4 - Quit", ConsoleColor.Cyan);
 
-            var key = Console.ReadKey(true).KeyChar;
-            if (key == '1')
-            {
-                calibrate(axis1Servo, axis2Servo);
-            } else if (key == '2')
-            {
-                sweepTest(axis1Servo, axis2Servo);
-            } else if (key == '3') {
-                homeServos(axis1Servo, axis2Servo);
-            } else 
-            {
-                WriteLineWithColor("Invalid option. Bailing", ConsoleColor.Red);
-                Exit(-1);
+                var key = Console.ReadKey(true).KeyChar;
+                if (key == '1')
+                {
+                    calibrate(axis1Servo, axis2Servo);
+                }
+                else if (key == '2')
+                {
+                    sweepTest(axis1Servo, axis2Servo);
+                }
+                else if (key == '3')
+                {
+                    homeServos(axis1Servo, axis2Servo);
+                }
+                else if (key == '4')
+                {
+                    Exit(0);
+                }
+
+                WriteLineWithColor("Complete.", ConsoleColor.Magenta);
             }
 
-            WriteLineWithColor("Complete.", ConsoleColor.Magenta);
-            Exit(0);
         }
     }
 }
