@@ -83,7 +83,7 @@ namespace HaloTestHarness
             }
         }
 
-        static void MoveToPositionSync(Servo servo, int position)
+        static void moveToPositionBlocking(Servo servo, int position)
         {
             servo.WriteValue(RegisterType.ProfileVelocity, 10);
             servo.WriteValue(RegisterType.GoalPosition, position, true);
@@ -109,13 +109,13 @@ namespace HaloTestHarness
                 int center = min + ((max - min) / 2);
 
                 chalkAndTalk("\rMoving to minimum limit.             ");
-                MoveToPositionSync(servo, min);
+                moveToPositionBlocking(servo, min);
 
                 chalkAndTalk("\rMoving to maximum limit.              ");
-                MoveToPositionSync(servo, max);
+                moveToPositionBlocking(servo, max);
 
                 chalkAndTalk("\rMoving to center.               ");
-                MoveToPositionSync(servo, center);
+                moveToPositionBlocking(servo, center);
 
                 chalkAndTalk("\rDisabling Torque                 ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
@@ -142,13 +142,13 @@ namespace HaloTestHarness
                 int center = 2048;
 
                 chalkAndTalk("\rMoving to maxiumum limit.           ");
-                MoveToPositionSync(servo, max);
+                moveToPositionBlocking(servo, max);
 
                 chalkAndTalk("\rMoving to minimum limit.            ");
-                MoveToPositionSync(servo, min);
+                moveToPositionBlocking(servo, min);
 
                 chalkAndTalk("\rMoving to center.             ");
-                MoveToPositionSync(servo, center);
+                moveToPositionBlocking(servo, center);
 
                 chalkAndTalk("\rDisabling Torque                  ");
                 servo.WriteValue(RegisterType.TorqueEnable, 0);
@@ -179,7 +179,7 @@ namespace HaloTestHarness
 
             axis2Servo.WriteValue(RegisterType.TorqueEnable, 1);
             chalkAndTalk("Torque enabled.");
-            MoveToPositionSync(axis2Servo, 2048);
+            moveToPositionBlocking(axis2Servo, 2048);
 
             WriteLineWithColor("\rAttach mirror and press any key.", ConsoleColor.Cyan);
             Console.ReadKey(true);
@@ -274,6 +274,45 @@ namespace HaloTestHarness
             }
         }
 
+        private static void homeServos(Servo axis1Servo, Servo axis2Servo)
+        {
+            WriteLineWithColor("Press any key to home servos.", ConsoleColor.Cyan);
+            Console.ReadKey(true);
+
+            try
+            {
+                chalkAndTalk("Enabling torque.");
+
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 1);
+                axis2Servo.WriteValue(RegisterType.TorqueEnable, 1);
+
+                int max, min, center = 0;
+                max = axis1Servo.ReadValue(RegisterType.MaxPositionLimit);
+                min = axis1Servo.ReadValue(RegisterType.MinPositionLimit);
+                center = min + ((max - min) / 2);
+                WriteLineWithColor(String.Format("\rAxis 1 center position: {0}", center), ConsoleColor.Green);
+                moveToPositionBlocking(axis1Servo, center);
+
+                max = axis2Servo.ReadValue(RegisterType.MaxPositionLimit);
+                min = axis2Servo.ReadValue(RegisterType.MinPositionLimit);
+                center = min + ((max - min) / 2);
+                WriteLineWithColor(String.Format("\rAxis 2 center position: {0}", center), ConsoleColor.Green);
+                moveToPositionBlocking(axis2Servo, center);
+
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                chalkAndTalk("\rTorque disabled.               ");
+
+            }
+            catch (Exception ex)
+            {
+                WriteLineWithColor("Dynamixel Error: " + ex.Message, ConsoleColor.Red);
+                Exit(-1);
+            }
+
+
+        }
+
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -347,6 +386,8 @@ namespace HaloTestHarness
             WriteLineWithColor("Options:", ConsoleColor.Cyan);
             WriteLineWithColor("1 - Calibrate", ConsoleColor.Cyan);
             WriteLineWithColor("2 - Sweep Test", ConsoleColor.Cyan);
+            WriteLineWithColor("3 - Home Servos", ConsoleColor.Cyan);
+
             var key = Console.ReadKey(true).KeyChar;
             if (key == '1')
             {
@@ -354,7 +395,9 @@ namespace HaloTestHarness
             } else if (key == '2')
             {
                 sweepTest(axis1Servo, axis2Servo);
-            } else
+            } else if (key == '3') {
+                homeServos(axis1Servo, axis2Servo);
+            } else 
             {
                 WriteLineWithColor("Invalid option. Bailing", ConsoleColor.Red);
                 Exit(-1);
