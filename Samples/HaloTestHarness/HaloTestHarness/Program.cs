@@ -278,19 +278,8 @@ namespace HaloTestHarness
         {
             Console.CursorVisible = false;
 
-            if (args.Length != 2)
-            {
-                WriteLineWithColor(String.Format("Usage: {0} <<port>> <<baud>>", System.AppDomain.CurrentDomain.FriendlyName), ConsoleColor.Red);
-                Exit();
-            }
-
-            string portName = args[0];
-            int baud = 0;
-            if (! Int32.TryParse(args[1], out baud))
-            {
-                WriteLineWithColor("Couldn't parse command line arguments. Bailing.", ConsoleColor.Red);
-                Exit();
-            }
+            string portName = Properties.Settings.Default.SerialPort;
+            int baud = Properties.Settings.Default.BaudRate;
 
             Port dxl = null;
             Console.WriteLine("Opening port {0} using baud rate {1}", portName, (int)baud);
