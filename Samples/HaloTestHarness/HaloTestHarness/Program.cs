@@ -276,7 +276,7 @@ namespace HaloTestHarness
 
                 Console.ForegroundColor = ConsoleColor.White;
                 axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
-                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine();
                 chalkAndTalk("Torque disabled.");
