@@ -88,7 +88,7 @@ namespace HaloTestHarness
             servo.WriteValue(RegisterType.ProfileVelocity, 10);
             servo.WriteValue(RegisterType.GoalPosition, position, true);
 
-            while(servo.ReadValue(RegisterType.PresentPosition) != position)
+            while ((Math.Abs(servo.ReadValue(RegisterType.PresentPosition) - position) > 3))
             {
                 UpdateLineWithColor("Current: " + servo.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
             }
@@ -126,8 +126,116 @@ namespace HaloTestHarness
             }
         }
 
+        static void calibrate(Servo axis1Servo, Servo axis2Servo)
+        {
+            int a1Center = 0;
+            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to center position and press any key.", out a1Center)) { };
+
+            int a1MaxLimit = 0;
+            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) limit position and press any key.", out a1MaxLimit)) { };
+
+            int a1MinLimit = a1MaxLimit - ((a1MaxLimit - a1Center) * 2);
+            WriteLineWithColor(String.Format("Axis 1 minimum limit calculated as {0}.", a1MinLimit), ConsoleColor.Green);
+
+            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit)) Exit();
+            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit)) Exit();
+
+            sweepLimits(axis1Servo);
+
+            int a2Center = 0;
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to center (weights down) position and press any key.", out a2Center)) { };
+
+            int a2MinLimit = 0;
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to minimum (weights towards you) limit and press any key.", out a2MinLimit)) { };
+
+            int a2MaxLimit = a2MinLimit - ((a2MinLimit - a2Center) * 2);
+            WriteLineWithColor(String.Format("Axis 2 maximum limit calculated as {0}.", a2MaxLimit), ConsoleColor.Green);
+
+            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit)) Exit();
+            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit)) Exit();
+
+            sweepLimits(axis2Servo);
+        }
+
+        static void sweepTest(Servo axis1Servo, Servo axis2Servo)
+        {
+            WriteLineWithColor("Press any key to sweep limits", ConsoleColor.Cyan);
+            Console.ReadKey(true);
+
+            WriteLineWithColor("Sweeping. Press any key to stop.", ConsoleColor.Cyan);
+            speak("Sweeping. Press any key to stop.");
+
+            try
+            {
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 1);
+                axis1Servo.WriteValue(RegisterType.ProfileVelocity, 10);
+                axis1Servo.WriteValue(RegisterType.PositionIGain, 100);
+                axis2Servo.WriteValue(RegisterType.TorqueEnable, 1);
+                axis2Servo.WriteValue(RegisterType.ProfileVelocity, 10);
+                axis2Servo.WriteValue(RegisterType.PositionIGain, 100);
+
+                var a1CurrentLimit = (Int16)axis1Servo.ReadValue(RegisterType.CurrentLimit);
+                var a2CurrentLimit = (Int16)axis2Servo.ReadValue(RegisterType.CurrentLimit);
+
+                var a1TargetEndpoint = RegisterType.MinPositionLimit;
+                var a2TargetEndpoint= RegisterType.MinPositionLimit;
+
+                var a1Goal = axis1Servo.ReadValue(a1TargetEndpoint);
+                var a2Goal = axis2Servo.ReadValue(a2TargetEndpoint);
+                axis1Servo.WriteValue(RegisterType.GoalPosition, a1Goal);
+                axis2Servo.WriteValue(RegisterType.GoalPosition, a2Goal);
+
+                WriteLineWithColor("Present Current:", ConsoleColor.Green);
+                Console.WriteLine();
+
+                while (!Console.KeyAvailable)
+                {
+                    if (Math.Abs(axis1Servo.ReadValue(RegisterType.PresentPosition) - a1Goal) < 3)
+                    {
+                        a1TargetEndpoint = (a1TargetEndpoint == RegisterType.MinPositionLimit) ? RegisterType.MaxPositionLimit : RegisterType.MinPositionLimit;
+                        a1Goal = axis1Servo.ReadValue(a1TargetEndpoint);
+                        axis1Servo.WriteValue(RegisterType.GoalPosition, a1Goal);
+                    }
+
+                    if (Math.Abs(axis2Servo.ReadValue(RegisterType.PresentPosition) - a2Goal) < 3)
+                    {
+                        a2TargetEndpoint = (a2TargetEndpoint == RegisterType.MinPositionLimit) ? RegisterType.MaxPositionLimit : RegisterType.MinPositionLimit;
+                        a2Goal = axis2Servo.ReadValue(a2TargetEndpoint);
+                        axis2Servo.WriteValue(RegisterType.GoalPosition, a2Goal);
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("\r");
+                    var s1PresentCurrent = Math.Abs(((Int16)axis1Servo.ReadValue(RegisterType.PresentCurrent)) * 2.69f);
+                    var s2PresentCurrent = Math.Abs(((Int16)axis2Servo.ReadValue(RegisterType.PresentCurrent)) * 2.69f);
+
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                    var s1Line = "\r\b".PadRight((int)((s1PresentCurrent / 500.0f) * 100.0f), '|').PadRight(102, ' ') + String.Format("{0: 000.0}mA", s1PresentCurrent) + "\n";
+                    var s2Line = "\r".PadRight((int)((s2PresentCurrent / 500.0f) * 100.0f), '|').PadRight(101, ' ') + String.Format("{0: 000.0}mA", s2PresentCurrent);
+
+                    Console.Write(s1Line + s2Line);
+                }
+                Console.ReadKey();
+
+                Console.ForegroundColor = ConsoleColor.White;
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine();
+                chalkAndTalk("Torque disabled.");
+
+            }
+            catch (Exception ex)
+            {
+                WriteLineWithColor("Couldn't achieve goals: " + ex.Message, ConsoleColor.Red);
+                Exit();
+            }
+        }
+
         static void Main(string[] args)
         {
+            Console.CursorVisible = false;
+
             if (args.Length != 2)
             {
                 WriteLineWithColor(String.Format("Usage: {0} <<port>> <<baud>>", System.AppDomain.CurrentDomain.FriendlyName), ConsoleColor.Red);
@@ -205,35 +313,24 @@ namespace HaloTestHarness
                 Exit();
             }
 
-            int a1Center = 0;
-            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to center position and press any key.", out a1Center)) { };
+            WriteLineWithColor("Options:", ConsoleColor.Cyan);
+            WriteLineWithColor("1 - Calibrate", ConsoleColor.Cyan);
+            WriteLineWithColor("2 - Sweep Test", ConsoleColor.Cyan);
+            var key = Console.ReadKey(true).KeyChar;
+            if (key == '1')
+            {
+                calibrate(axis1Servo, axis2Servo);
+            } else if (key == '2')
+            {
+                sweepTest(axis1Servo, axis2Servo);
+            } else
+            {
+                WriteLineWithColor("Invalid option. Bailing", ConsoleColor.Red);
+                Exit(-1);
+            }
 
-            int a1MaxLimit = 0;
-            while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) limit position and press any key.", out a1MaxLimit)) { };
-
-            int a1MinLimit = a1MaxLimit - ((a1MaxLimit - a1Center) * 2);
-            WriteLineWithColor(String.Format("Axis 1 minimum limit calculated as {0}.", a1MinLimit), ConsoleColor.Green);
-
-            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit)) Exit();
-            if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MinPositionLimit, a1MinLimit)) Exit();
-
-            sweepLimits(axis1Servo);
-
-            int a2Center = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to center (weights down) position and press any key.", out a2Center)) { };
-
-            int a2MinLimit = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to minimum (weights towards you) limit and press any key.", out a2MinLimit)) { };
-
-            int a2MaxLimit  = a2MinLimit - ((a2MinLimit - a2Center) * 2);
-            WriteLineWithColor(String.Format("Axis 2 maximum limit calculated as {0}.", a2MaxLimit), ConsoleColor.Green);
-
-            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit)) Exit();
-            if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit)) Exit();
-
-            sweepLimits(axis2Servo);
-
-            Console.ReadKey();
+            WriteLineWithColor("Complete.", ConsoleColor.Magenta);
+            Exit(0);
         }
     }
 }

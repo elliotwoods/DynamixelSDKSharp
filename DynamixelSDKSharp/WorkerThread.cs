@@ -104,7 +104,8 @@ namespace DynamixelSDKSharp
 					//wait for a response from this action
 					if (timeout == TimeSpan.Zero)
 					{
-						Monitor.Wait(syncAction.NotifyCompletion);
+
+                        Monitor.Wait(syncAction.NotifyCompletion);
 					}
 					else
 					{
