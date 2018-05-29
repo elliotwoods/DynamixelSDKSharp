@@ -6,7 +6,7 @@
       <Value Profile="(Default)">50</Value>
     </Setting>
     <Setting Name="axis2LimitOffset" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">50</Value>
+      <Value Profile="(Default)">230</Value>
     </Setting>
     <Setting Name="SerialPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM4</Value>
