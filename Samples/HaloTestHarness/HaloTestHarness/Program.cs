@@ -10,6 +10,12 @@ namespace HaloTestHarness
     {
         static SpeechSynthesizer talker = new SpeechSynthesizer();
 
+        Program()
+        {
+            talker.SelectVoiceByHints(VoiceGender.Female);
+            talker.SetOutputToDefaultAudioDevice();
+        }
+
         static void WriteLineWithColor(string message, ConsoleColor color)
         {
             Console.ForegroundColor = color;
@@ -32,9 +38,7 @@ namespace HaloTestHarness
 
         static void speak(string message)
         {
-            talker.SelectVoiceByHints(VoiceGender.Female);
-            talker.SetOutputToDefaultAudioDevice();
-            talker.Speak(message);
+            talker.SpeakAsync(message);
         }
 
         static void chalkAndTalk(string message)
@@ -86,13 +90,19 @@ namespace HaloTestHarness
 
         static void moveToPositionBlocking(Servo servo, int position)
         {
-            servo.WriteValue(RegisterType.ProfileVelocity, 10);
             servo.WriteValue(RegisterType.GoalPosition, position, true);
 
-            while ((Math.Abs(servo.ReadValue(RegisterType.PresentPosition) - position) > 3))
+            while ((Math.Abs(servo.ReadValue(RegisterType.PresentPosition) - position) > Properties.Settings.Default.PositionEpsilon))
             {
                 UpdateLineWithColor("Present position: " + servo.ReadValue(RegisterType.PresentPosition), ConsoleColor.Green);
             }
+        }
+
+        static void initialiseSettings(Servo servo)
+        {
+            servo.WriteValue(RegisterType.ProfileAcceleration, Properties.Settings.Default.ProfileAcceleration);
+            servo.WriteValue(RegisterType.ProfileVelocity, Properties.Settings.Default.ProfileVelocity);
+            servo.WriteValue(RegisterType.PositionIGain, Properties.Settings.Default.PositionIGain);
         }
 
         static void sweepLimitsAxis1(Servo servo)
@@ -102,8 +112,8 @@ namespace HaloTestHarness
                 chalkAndTalk("Enabling Torque");
                 servo.WriteValue(RegisterType.TorqueEnable, 1);
 
-                Console.WriteLine("Setting Position I Gain");
-                servo.WriteValue(RegisterType.PositionIGain, 100);
+                Console.WriteLine("Setting servo defaults");
+                Program.initialiseSettings(servo);
 
                 int max = servo.ReadValue(RegisterType.MaxPositionLimit);
                 int min = servo.ReadValue(RegisterType.MinPositionLimit);
@@ -137,14 +147,14 @@ namespace HaloTestHarness
                 chalkAndTalk("Enabling Torque");
                 servo.WriteValue(RegisterType.TorqueEnable, 1);
 
-                Console.WriteLine("Setting Position I Gain");
-                servo.WriteValue(RegisterType.PositionIGain, 100);
+                Console.WriteLine("Setting servo defaults");
+                Program.initialiseSettings(servo);
 
                 int max = servo.ReadValue(RegisterType.MaxPositionLimit);
                 int min = servo.ReadValue(RegisterType.MinPositionLimit);
                 int center = 2048;
 
-                chalkAndTalk("\rMoving to maxiumum limit.           ");
+                chalkAndTalk("\rMoving to maximum limit.           ");
                 moveToPositionBlocking(servo, max);
 
                 chalkAndTalk("\rMoving to minimum limit.            ");
@@ -175,10 +185,12 @@ namespace HaloTestHarness
             Console.WriteLine();
 
             int a1MaxLimit = 0;
+            chalkAndTalk("Please rotate axis 1 to anticlockwise limit");
             while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to anticlockwise (left edge towards you) position and press any key.", out a1MaxLimit)) { };
             Console.WriteLine();
 
             int a1MinLimit = 0;
+            chalkAndTalk("Please rotate axis 1 to clockwise limit");
             while (!getAxisCalibrationValue(axis1Servo, "Set Axis 1 to clockwise (right edge towards you) limit position and press any key.", out a1MinLimit)) { };
 
             if (!storeToEEPROMAndReadback(axis1Servo, RegisterType.MaxPositionLimit, a1MaxLimit - Properties.Settings.Default.axis1LimitOffset)) Exit();
@@ -187,13 +199,15 @@ namespace HaloTestHarness
             sweepLimitsAxis1(axis1Servo);
             Console.WriteLine();
 
+            chalkAndTalk("Please ensure Axis 2 screw is loose");
             WriteLineWithColor("Setting Axis 2 center position. Ensure mirror is not attached and press any key.", ConsoleColor.Cyan);
             Console.ReadKey(true);
 
             axis2Servo.WriteValue(RegisterType.TorqueEnable, 1);
-            chalkAndTalk("Torque enabled.");
+            chalkAndTalk("Homing axis 2");
             moveToPositionBlocking(axis2Servo, 2048);
 
+            chalkAndTalk("Please tighten Axis 2 servo screw");
             WriteLineWithColor("\rAttach mirror and press any key.", ConsoleColor.Cyan);
             Console.ReadKey(true);
 
@@ -202,11 +216,13 @@ namespace HaloTestHarness
             Console.WriteLine();
 
             int a2MinLimit = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to forward (weights towards you) position and press any key.", out a2MinLimit)) { };
+            chalkAndTalk("Please rotate axis 2 to backwards limit");
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to backwards (weights towards you) position and press any key.", out a2MinLimit)) { };
             Console.WriteLine();
 
             int a2MaxLimit = 0;
-            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to backward (weights away from you) limit and press any key.", out a2MaxLimit)) { };
+            chalkAndTalk("Please rotate axis 2 to forwards limit");
+            while (!getAxisCalibrationValue(axis2Servo, "Set Axis 2 to forwards (weights away from you) limit and press any key.", out a2MaxLimit)) { };
 
             if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MinPositionLimit, a2MinLimit + Properties.Settings.Default.axis2LimitOffset)) Exit();
             if (!storeToEEPROMAndReadback(axis2Servo, RegisterType.MaxPositionLimit, a2MaxLimit - Properties.Settings.Default.axis2LimitOffset)) Exit();

@@ -70,5 +70,53 @@ namespace HaloTestHarness.Properties {
                 this["BaudRate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int ProfileVelocity {
+            get {
+                return ((int)(this["ProfileVelocity"]));
+            }
+            set {
+                this["ProfileVelocity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int ProfileAcceleration {
+            get {
+                return ((int)(this["ProfileAcceleration"]));
+            }
+            set {
+                this["ProfileAcceleration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int PositionIGain {
+            get {
+                return ((int)(this["PositionIGain"]));
+            }
+            set {
+                this["PositionIGain"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int PositionEpsilon {
+            get {
+                return ((int)(this["PositionEpsilon"]));
+            }
+            set {
+                this["PositionEpsilon"] = value;
+            }
+        }
     }
 }
