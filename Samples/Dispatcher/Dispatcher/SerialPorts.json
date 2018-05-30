@@ -1,0 +1,7 @@
+﻿[
+	{
+		"PortName" : "WestOne",
+		"PortAddress" : "COM1",
+		"Baud" : 115200
+	}
+]

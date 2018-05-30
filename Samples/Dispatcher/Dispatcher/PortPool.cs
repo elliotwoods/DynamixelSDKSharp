@@ -12,6 +12,13 @@ using System.Threading.Tasks;
 
 namespace Dispatcher
 {
+    class PresetSerialPort
+    {
+        public string PortName { get; set; }
+        public string PortAddress { get; set; }
+        public int Baud { get; set; }
+    }
+
 	class PortPool
 	{
 		//Singleton
@@ -23,6 +30,8 @@ namespace Dispatcher
 		public Dictionary<string, Port> Ports { get; private set; } = new Dictionary<string, Port>();
 		public SortedDictionary<int, Servo> Servos { get; private set; }  = new SortedDictionary<int, Servo>();
 
+        private const string ConfigurationJsonFilename = "SerialPorts.json";
+
 		public PortPool()
 		{
 			// since we're static, we don't want to do anything which could cause an exception in initialisation
@@ -31,26 +40,26 @@ namespace Dispatcher
 		public void Refresh()
 		{
 			//check if any new ports have been connected
-			var currentSystemPorts = SerialPort.GetPortNames();
-			{
-				foreach (var portName in currentSystemPorts)
-				{
-					if (!this.Ports.ContainsKey(portName))
-					{
-						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0}", portName));
+            using (StreamReader file = new StreamReader(ConfigurationJsonFilename))
+            {
+                var json = file.ReadToEnd();
+                foreach (var p in JsonConvert.DeserializeObject<IEnumerable<PresetSerialPort>>(json)) {
+                    if (!this.Ports.ContainsKey(p.PortAddress))
+                    {
+                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0} ({1})", p.PortAddress, p.PortName));
 
-						var port = new Port(portName, BaudRate.BaudRate_115200);
-						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", portName, port.IsOpen));
+                        var port = new Port(p.PortAddress, (BaudRate)p.Baud) ;
+                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", p.PortAddress, port.IsOpen));
 
-						this.Ports.Add(portName, port);
-					}
-				}
-			}
+                        this.Ports.Add(p.PortAddress, port);
+                    }
+                }
+            }
 
 			//check if any ports have become closed
 			{
 				//remove if Dynamixel SDK reports the port is closed, or the system doesn't report that the port exists any more
-				var toRemove = this.Ports.Where(pair => !pair.Value.IsOpen || !currentSystemPorts.Contains(pair.Key))
+				var toRemove = this.Ports.Where(pair => !pair.Value.IsOpen)
 					.Select(pair => pair.Key)
 					.ToList();
 
