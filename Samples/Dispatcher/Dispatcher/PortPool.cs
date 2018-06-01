@@ -52,7 +52,10 @@ namespace Dispatcher
                         Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", p.PortAddress, port.IsOpen));
 
                         this.Ports.Add(p.PortAddress, port);
-                    }
+                    } else
+					{
+						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Couldn't find port {0} ({1}) on system.", p.PortAddress, p.PortName));
+					}
                 }
             }
 
