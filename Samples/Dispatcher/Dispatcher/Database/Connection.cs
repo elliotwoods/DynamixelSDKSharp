@@ -68,8 +68,11 @@ namespace Dispatcher.Database
 
 		public void Log<T>(T data)
 		{
-			var collection = this.GetCollection<T>();
-			collection.InsertOne(data);
+			if(this.Connected)
+			{
+				var collection = this.GetCollection<T>();
+				collection.InsertOne(data);
+			}
 		}
 
 		public IMongoDatabase Database
