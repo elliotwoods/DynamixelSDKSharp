@@ -49,9 +49,12 @@ namespace Dispatcher
                         Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0} ({1})", p.PortAddress, p.PortName));
 
                         var port = new Port(p.PortAddress, (BaudRate)p.Baud) ;
-                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", p.PortAddress, port.IsOpen));
+                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1}). Searching...", p.PortAddress, port.IsOpen));
 
-                        this.Ports.Add(p.PortAddress, port);
+						//we refresh here because we need to perform an operation before moving onto the next port
+						port.Refresh();
+
+						this.Ports.Add(p.PortAddress, port);
                     } else
 					{
 						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Couldn't find port {0} ({1}) on system.", p.PortAddress, p.PortName));
@@ -80,7 +83,6 @@ namespace Dispatcher
 				foreach (var port in this.Ports.Values)
 				{
 					Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Searching for servos on port {0}", port.Name));
-					port.Refresh();
 
 					var servosFound = new List<int>();
 
