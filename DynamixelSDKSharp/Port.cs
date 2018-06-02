@@ -34,7 +34,7 @@ namespace DynamixelSDKSharp
 		WorkerThread FWorkerThread;
 		int FPortNumber;
 
-		static bool FPacketHandlerInitialised = false;
+		bool FPacketHandlerInitialised = false;
 
 		public ProtocolVersion ProtocolVersion = ProtocolVersion.ProtocolVersion_2;
 
