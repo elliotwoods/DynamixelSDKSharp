@@ -1,7 +1,22 @@
 ﻿[
 	{
-		"PortName" : "WestOne",
+		"PortName" : "East 1",
 		"PortAddress" : "COM1",
+		"Baud" : 115200
+	},
+		{
+		"PortName" : "East 2",
+		"PortAddress" : "COM2",
+		"Baud" : 115200
+	},
+		{
+		"PortName" : "East 3",
+		"PortAddress" : "COM3",
+		"Baud" : 115200
+	},
+		{
+		"PortName" : "East 4",
+		"PortAddress" : "COM4",
 		"Baud" : 115200
 	}
 ]
