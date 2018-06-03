@@ -18,9 +18,9 @@
 			"OnStart": "true"
 		},
 		{
-			"Period": 0.1,
+			"Period": 0,
 			"Action": "Data/Logger",
-			"OnStart": "true"
+			"OnStart": "false"
 		}
 	]
 }

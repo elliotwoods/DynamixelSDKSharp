@@ -23,15 +23,19 @@ namespace DynamixelSDKSharp
 {
 	public unsafe class NativeFunctions
 	{
+#if WIN64
 		const string dll_path = "dxl_x64_c.dll";
+#else
+		const string dll_path = "dxl_x86_c.dll";
+#endif
 
 		#region Constants
 		public const int COMM_SUCCESS = 0;
 		public const int COMM_TX_FAIL = -1001;
 		public const int MAX_ID = 252;
-		#endregion
+#endregion
 
-		#region PortHandler
+#region PortHandler
 		[DllImport(dll_path)]
 		public static extern int portHandler(string port_name);
 
@@ -68,9 +72,9 @@ namespace DynamixelSDKSharp
 		public static extern void setPacketTimeoutMSec(int port_num, double msec);
 		[DllImport(dll_path)]
 		public static extern bool isPacketTimeout(int port_num);
-		#endregion
+#endregion
 
-		#region PacketHandler
+#region PacketHandler
 		[DllImport(dll_path)]
 		public static extern void packetHandler();
 
@@ -187,9 +191,9 @@ namespace DynamixelSDKSharp
 
 		[DllImport(dll_path)]
 		public static extern void bulkWriteTxOnly(int port_num, int protocol_version, UInt16 param_length);
-		#endregion
+#endregion
 
-		#region GroupBulkRead
+#region GroupBulkRead
 		[DllImport(dll_path)]
 		public static extern int groupBulkRead(int port_num, int protocol_version);
 
@@ -211,9 +215,9 @@ namespace DynamixelSDKSharp
 		public static extern bool groupBulkReadIsAvailable(int group_num, byte id, UInt16 address, UInt16 data_length);
 		[DllImport(dll_path)]
 		public static extern UInt32 groupBulkReadGetData(int group_num, byte id, UInt16 address, UInt16 data_length);
-		#endregion
+#endregion
 
-		#region GroupBulkWrite
+#region GroupBulkWrite
 		[DllImport(dll_path)]
 		public static extern int groupBulkWrite(int port_num, int protocol_version);
 
@@ -228,9 +232,9 @@ namespace DynamixelSDKSharp
 
 		[DllImport(dll_path)]
 		public static extern void groupBulkWriteTxPacket(int group_num);
-		#endregion
+#endregion
 
-		#region GroupSyncRead
+#region GroupSyncRead
 		[DllImport(dll_path)]
 		public static extern int groupSyncRead(int port_num, int protocol_version, UInt16 start_address, UInt16 data_length);
 
@@ -252,9 +256,9 @@ namespace DynamixelSDKSharp
 		public static extern bool groupSyncReadIsAvailable(int group_num, byte id, UInt16 address, UInt16 data_length);
 		[DllImport(dll_path)]
 		public static extern UInt32 groupSyncReadGetData(int group_num, byte id, UInt16 address, UInt16 data_length);
-		#endregion
+#endregion
 
-		#region GroupSyncWrite
+#region GroupSyncWrite
 		[DllImport(dll_path)]
 		public static extern int groupSyncWrite(int port_num, int protocol_version, UInt16 start_address, UInt16 data_length);
 
@@ -269,6 +273,6 @@ namespace DynamixelSDKSharp
 
 		[DllImport(dll_path)]
 		public static extern void groupSyncWriteTxPacket(int group_num);
-		#endregion
+#endregion
 	}
 }

@@ -34,8 +34,6 @@ namespace DynamixelSDKSharp
 		WorkerThread FWorkerThread;
 		int FPortNumber;
 
-		static bool FPacketHandlerInitialised = false;
-
 		public ProtocolVersion ProtocolVersion = ProtocolVersion.ProtocolVersion_2;
 
 		//when writing async, we want to overwrite any registers in the outbox as we go along
@@ -54,35 +52,28 @@ namespace DynamixelSDKSharp
 		public Port(string portName, BaudRate baudRate = BaudRate.BaudRate_57600)
 		{
 			this.Name = portName;
+			try
+			{
+				// Open the port
+				this.FPortNumber = NativeFunctions.portHandler(portName);
+
+				// Initialise the packet handler
+				NativeFunctions.packetHandler();
+
+				//Note that we don't call NativeFunctions.openPort() here because setting the baud rate achieves the same thing in the Dynamixel SDK.
+				NativeFunctions.setBaudRate(FPortNumber, (int)baudRate);
+
+				this.IsOpen = true;
+			}
+			catch (Exception e)
+			{
+				NativeFunctions.clearPort(this.FPortNumber);
+				this.IsOpen = false;
+				throw (e);
+			}
+
 			this.FWorkerThread = new WorkerThread("Port " + portName);
-			this.FWorkerThread.DoSync(() => {
-				try
-				{
-					// Open the port
-					this.FPortNumber = NativeFunctions.portHandler(portName);
-					if (!NativeFunctions.openPort(this.FPortNumber))
-					{
-						throw (new Exception("Failed to open port"));
-					}
 
-					// Initialise the packet handler
-					if (!FPacketHandlerInitialised)
-					{
-						NativeFunctions.packetHandler();
-						FPacketHandlerInitialised = true;
-					}
-
-					// Initialise the packet handler
-					this.IsOpen = true;
-					this.BaudRate = baudRate;
-				}
-				catch (Exception e)
-				{
-					NativeFunctions.clearPort(this.FPortNumber);
-					this.IsOpen = false;
-					throw (e);
-				}
-			});
 		}
 
 		public BaudRate BaudRate

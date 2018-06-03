@@ -45,8 +45,11 @@ namespace Dispatcher.Database
 					, t => true);
 				}
 
-				Logger.Log<Connection>(Logger.Level.Trace, "--------------- SESION START : Database connected");
-			}
+                if(this.Connected)
+                {
+                    Logger.Log<Connection>(Logger.Level.Trace, "--------------- SESION START : Database connected");
+                }
+            }
 			catch (Exception e)
 			{
 				Logger.Log<Connection>(Logger.Level.Warning, "Failed to connect to MongoDB for DataLogging : " + e.Message);
@@ -68,11 +71,19 @@ namespace Dispatcher.Database
 
 		public void Log<T>(T data)
 		{
+<<<<<<< HEAD
 			if(this.Connected)
 			{
 				var collection = this.GetCollection<T>();
 				collection.InsertOne(data);
 			}
+=======
+            if(this.Connected)
+            {
+                var collection = this.GetCollection<T>();
+                collection.InsertOne(data);
+            }
+>>>>>>> 1e8fad90e8bf51a49bbee21336f892b98abb53f9
 		}
 
 		public IMongoDatabase Database
