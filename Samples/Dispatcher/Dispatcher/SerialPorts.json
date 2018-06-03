@@ -16,7 +16,27 @@
 	},
 		{
 		"PortName" : "East 4",
+		"PortAddress" : "COM17",
+		"Baud" : 115200
+	},
+	{
+		"PortName" : "West ?",
 		"PortAddress" : "COM4",
+		"Baud" : 115200
+	},
+	{
+		"PortName" : "West ?",
+		"PortAddress" : "COM11",
+		"Baud" : 115200
+	},
+	{
+		"PortName" : "West ?",
+		"PortAddress" : "COM15",
+		"Baud" : 115200
+	},
+	{
+		"PortName" : "West ?",
+		"PortAddress" : "COM16",
 		"Baud" : 115200
 	}
 ]
