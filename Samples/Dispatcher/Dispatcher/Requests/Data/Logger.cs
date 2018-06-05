@@ -187,7 +187,7 @@ namespace Dispatcher.Requests.Data
 				//accumulate report log
 				lock(report)
 				{
-					report.Add(port.Name, listOfServosToLog);
+					report.Add(String.Format("{0} ({1})", port.Name, port.Address), listOfServosToLog);
 				}
 			});
 
