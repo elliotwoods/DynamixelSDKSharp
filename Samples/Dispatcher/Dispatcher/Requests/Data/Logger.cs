@@ -16,6 +16,8 @@ namespace Dispatcher.Requests.Data
 	{
 		const string ConfigFilename = "DataLogger.json";
 
+		public bool UseGroupSyncRead { get; set; } = false;
+
 		class Settings
 		{
 			public Settings()
@@ -140,10 +142,25 @@ namespace Dispatcher.Requests.Data
 					{
 						var registerInfo = firstServo.Registers[registerType];
 
-						recordedValues.Add(registerType
-							, portIterator.Value.GroupSyncRead(listOfServosToLog
-								, registerInfo.Address
-								, registerInfo.Size));
+						if (this.UseGroupSyncRead)
+						{
+							recordedValues.Add(registerType
+								, portIterator.Value.GroupSyncRead(listOfServosToLog
+									, registerInfo.Address
+									, registerInfo.Size));
+						}
+						else
+						{
+							var values = new Dictionary<byte, int>();
+							foreach (var servoID in listOfServosToLog)
+							{
+								values.Add(servoID, port.Read(servoID
+									, registerInfo.Address
+									, registerInfo.Size));
+							}
+
+							recordedValues.Add(registerType, values);
+						}
 					}
 				}
 
