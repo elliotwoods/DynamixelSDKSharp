@@ -116,11 +116,16 @@
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
     <Compile Include="Requests\Data\GetFreshestValues.cs" />
     <Compile Include="Requests\Data\GetHistoricalValues.cs" />
+    <Compile Include="Requests\Group\GetDeltas.cs" />
+    <Compile Include="Requests\Group\GotoByDatumMulti.cs" />
+    <Compile Include="Requests\Group\GotoByDatum.cs" />
+    <Compile Include="Requests\Group\Goto.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
     <Compile Include="Requests\Test\IDoForAllServos.cs" />

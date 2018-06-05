@@ -29,7 +29,8 @@ namespace DynamixelSDKSharp
 	public class Port : IDisposable
 	{
 		public bool IsOpen { get; private set; }
-		public string Name { get; private set; }
+		public string Name { get; set; }
+		public string Address { get; private set; }
 
 		WorkerThread FWorkerThread;
 		int FPortNumber;
@@ -49,13 +50,15 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public Port(string portName, BaudRate baudRate = BaudRate.BaudRate_57600)
+		public Port(string portAddress, BaudRate baudRate = BaudRate.BaudRate_57600)
 		{
-			this.Name = portName;
+			this.Name = portAddress;
+			this.Address = portAddress;
+
 			try
 			{
 				// Open the port
-				this.FPortNumber = NativeFunctions.portHandler(portName);
+				this.FPortNumber = NativeFunctions.portHandler(portAddress);
 
 				// Initialise the packet handler
 				NativeFunctions.packetHandler();
@@ -72,7 +75,7 @@ namespace DynamixelSDKSharp
 				throw (e);
 			}
 
-			this.FWorkerThread = new WorkerThread("Port " + portName);
+			this.FWorkerThread = new WorkerThread("Port " + portAddress);
 
 		}
 

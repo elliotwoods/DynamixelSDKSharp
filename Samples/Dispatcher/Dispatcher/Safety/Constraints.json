@@ -3,8 +3,14 @@
 		{
 			"RegisterType": "Present Temperature",
 			"MinValue": 5,
-			"MaxValue": 60,
+			"MaxValue": 70,
 			"LogLevel": "Warning"
+		},
+		{
+			"RegisterType": "Present Temperature",
+			"MinValue": 3,
+			"MaxValue": 75,
+			"LogLevel": "Error"
 		},
 		{
 			"RegisterType": "Present Input Voltage",
