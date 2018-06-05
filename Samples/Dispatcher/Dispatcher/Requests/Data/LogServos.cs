@@ -10,7 +10,7 @@ namespace Dispatcher.Requests.Data
 	[RequestHandler(Method = Method.POST)]
 	class LogServos : IRequest
 	{
-		List<int> servoIDs { get; set; }
+		public List<int> servoIDs { get; set; }
 
 		public object Perform()
 		{
