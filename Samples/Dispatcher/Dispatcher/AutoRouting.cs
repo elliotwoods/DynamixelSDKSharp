@@ -201,6 +201,14 @@ namespace Dispatcher
 			catch (Exception e)
 			{
 				Logger.Log(Logger.Level.Error, e, route.RequestType);
+				if (e is AggregateException)
+				{
+					var ae = e as AggregateException;
+					foreach(var innerException in ae.InnerExceptions)
+					{
+						Logger.Log(Logger.Level.Error, innerException, route.RequestType);
+					}
+				}
 
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{

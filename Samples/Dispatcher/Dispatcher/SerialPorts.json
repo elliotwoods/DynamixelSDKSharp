@@ -1,42 +1,7 @@
 ﻿[
 	{
-		"PortName" : "East 1",
-		"PortAddress" : "COM1",
-		"Baud" : 115200
-	},
-		{
-		"PortName" : "East 2",
-		"PortAddress" : "COM2",
-		"Baud" : 115200
-	},
-		{
-		"PortName" : "East 3",
-		"PortAddress" : "COM3",
-		"Baud" : 115200
-	},
-		{
-		"PortName" : "East 4",
-		"PortAddress" : "COM17",
-		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM4",
-		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM11",
-		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM15",
-		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM16",
+		"PortName" : "Elliot's USB",
+		"PortAddress" : "COM5",
 		"Baud" : 115200
 	}
 ]

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{09800E0E-2108-4AF0-A847-DB2D5D417307}</ProjectGuid>
+    <ProjectGuid>{C2A5D9D2-A628-463A-B3EB-431423712E15}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Dispatcher</RootNamespace>
     <AssemblyName>Dispatcher</AssemblyName>
@@ -116,11 +116,16 @@
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
     <Compile Include="Requests\Data\GetFreshestValues.cs" />
     <Compile Include="Requests\Data\GetHistoricalValues.cs" />
+    <Compile Include="Requests\Group\GetDeltas.cs" />
+    <Compile Include="Requests\Group\GotoByDatumMulti.cs" />
+    <Compile Include="Requests\Group\GotoByDatum.cs" />
+    <Compile Include="Requests\Group\Goto.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
     <Compile Include="Requests\Test\IDoForAllServos.cs" />

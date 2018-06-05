@@ -14,18 +14,17 @@ namespace Dispatcher.Requests.Data
 	[Serializable]
 	class Logger : IRequest
 	{
-		const string Filename = "DataLogger.json";
+		const string ConfigFilename = "DataLogger.json";
 
 		class Settings
 		{
 			public Settings()
 			{
-				this.Load(Logger.Filename);
+				this.LoadConfig(Logger.ConfigFilename);
 			}
 
-			void Load(string filename)
+			void LoadConfig(string filename)
 			{
-				//load list of constraints
 				using (StreamReader file = new StreamReader(filename))
 				{
 					var json = file.ReadToEnd();
@@ -101,11 +100,17 @@ namespace Dispatcher.Requests.Data
 					}
 				}
 
+				if(port.Servos.Count == 0)
+				{
+					//quit early if this port has no servos
+					return;
+				}
+
 				//check regular logging (choose oldest)
 				{
 					var staleTimeForRegularUpdates = DateTime.Now - TimeSpan.FromSeconds(Logger.FSettings.Period);
 
-				var documents = collection.AsQueryable()
+					var documents = collection.AsQueryable()
 								.OrderByDescending(row => row.TimeStamp)
 								.GroupBy(row => row.ServoID)
 								.Where(group => group.First().TimeStamp < staleTimeForRegularUpdates.ToUniversalTime())
@@ -119,6 +124,12 @@ namespace Dispatcher.Requests.Data
 						listOfServosToLog.Add((byte)servoWithOldData);
 					}
 				}
+
+				// trim any servos which aren't available on this port
+				listOfServosToLog.RemoveAll(servoID =>
+				{
+					return !port.Servos.ContainsKey(servoID);
+				});
 
 				// accumulate data logs
 				var recordedValues = new Dictionary<RegisterType, Dictionary<byte, int>>();
