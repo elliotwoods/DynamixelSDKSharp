@@ -18,7 +18,7 @@ namespace Dispatcher.Requests.Data
 
 		public bool UseGroupSyncRead { get; set; } = false;
 
-		class Settings
+		public class Settings
 		{
 			public Settings()
 			{
@@ -44,7 +44,7 @@ namespace Dispatcher.Requests.Data
 			public double Period { get; set; } = 10.0;
 		}
 
-		static Settings FSettings = new Settings();
+		public static Settings FSettings = new Settings();
 
 		public object Perform()
 		{
