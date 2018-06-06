@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Numerics;
+
 
 namespace Dispatcher.Models
 {
@@ -17,8 +17,9 @@ namespace Dispatcher.Models
 
 	public class HeliostatHAMParams
 	{
-		Vector3 pivotPoint { get; set; }
-		HAMAxisCalibration pitchParameters { get; set; }
-		HAMAxisCalibration rotationParameters { get; set; }
+		
+		public Vector3 pivotPoint { get; set; }
+		public HAMAxisCalibration pitchParameters { get; set; }
+		public HAMAxisCalibration rotationParameters { get; set; }
 	}
 }

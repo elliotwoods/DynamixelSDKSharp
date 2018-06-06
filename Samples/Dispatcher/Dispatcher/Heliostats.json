@@ -1,32 +1,32 @@
 ﻿[
 	{
 		"ID": 1,
-		"axis1ServoID": 1,
-		"axis2ServoID": 2,
+		"axis1ServoID": 169,
+		"axis2ServoID": 170,
 		"hamParameters": {
 			"pivotPoint": {
-				"x": 0.0,
-				"y": 0.0,
-				"z": 0.0
+				"x": 6.352,
+				"y": 0.2,
+				"z": 0.01
 			},
 			"pitchParameters": {
-				"m": 0.0,
-				"c": 0.0,
-				"pitch": 0.0,
-				"rotation": 0.0
+				"m": -0.00155,
+				"c": 3.1744,
+				"pitch": 1.57079632679,
+				"rotation": -1.57079632679
 			},
 			"rotationParameters": {
-				"m": 0.0,
-				"c": 0.0,
-				"pitch": 0.0,
+				"m": -0.00155,
+				"c": 4.7244,
+				"pitch": 3.1415967,
 				"rotation": 0.0
 			}
 		}
 	},
 	{
 		"ID": 2,
-		"axis1ServoID": 3,
-		"axis2ServoID": 4,
+		"axis1ServoID": 171,
+		"axis2ServoID": 172,
 		"hamParameters": {
 			"pivotPoint": {
 				"x": 0.0,
@@ -34,17 +34,19 @@
 				"z": 0.0
 			},
 			"pitchParameters": {
-				"m": 0.0,
-				"c": 0.0,
-				"pitch": 0.0,
-				"rotation": 0.0
+				"m": -0.00155,
+				"c": 3.1744,
+				"pitch": 1.57079632679,
+				"rotation": -1.57079632679
 			},
 			"rotationParameters": {
-				"m": 0.0,
-				"c": 0.0,
-				"pitch": 0.0,
+				"m": -0.00155,
+				"c": 3.10,
+				"pitch": 3.1415967,
 				"rotation": 0.0
 			}
 		}
 	}
 ]
+
+

@@ -1,7 +1,7 @@
 ﻿[
 	{
 		"PortName" : "Elliot's USB",
-		"PortAddress" : "COM5",
+		"PortAddress" : "COM4",
 		"Baud" : 115200
 	}
 ]
