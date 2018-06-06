@@ -23,10 +23,10 @@ namespace DynamixelSDKSharp
 {
 	public unsafe class NativeFunctions
 	{
-#if WIN64
-		const string dll_path = "dxl_x64_c.dll";
-#else
+#if WIN32
 		const string dll_path = "dxl_x86_c.dll";
+#else
+		const string dll_path = "dxl_x64_c.dll";
 #endif
 
 		#region Constants

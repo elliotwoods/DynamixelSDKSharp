@@ -11,10 +11,24 @@ namespace Dispatcher.Requests.Test
 	[Serializable]
 	class ZeroAllServos : IDoForAllServos
 	{
+		public bool useMidvalue = true;
+
 		protected override void Perform(DynamixelSDKSharp.Servo servo, Action<int> goToPosition, int startPosition)
 		{
-			//go to middle position
-			goToPosition(servo.ProductSpecification.EncoderResolution / 2);
+
+			if(useMidvalue)
+			{
+				//go to middle between limits 
+				var min = servo.ReadValue(RegisterType.MinPositionLimit);
+				var max = servo.ReadValue(RegisterType.MaxPositionLimit);
+
+				goToPosition((max + min) / 2);
+			}
+			else
+			{
+				//go to middle of encoder values
+				goToPosition(servo.ProductSpecification.EncoderResolution / 2);
+			}
 		}
 	}
 }

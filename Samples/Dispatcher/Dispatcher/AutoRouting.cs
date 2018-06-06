@@ -145,6 +145,8 @@ namespace Dispatcher
 		{
 			object responseObject = null;
 
+			DateTime timeStart = DateTime.Now;
+
 			try
 			{
 				//set the thread name
@@ -194,18 +196,28 @@ namespace Dispatcher
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = true,
-					data = responseObject
+					data = responseObject,
+					responseTime = (DateTime.Now - timeStart).TotalSeconds
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
 			}
 			catch (Exception e)
 			{
 				Logger.Log(Logger.Level.Error, e, route.RequestType);
+				if (e is AggregateException)
+				{
+					var ae = e as AggregateException;
+					foreach(var innerException in ae.InnerExceptions)
+					{
+						Logger.Log(Logger.Level.Error, innerException, route.RequestType);
+					}
+				}
 
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = false,
-					exception = new Utils.ExceptionMessage(e)
+					exception = new Utils.ExceptionMessage(e),
+					responseTime = (DateTime.Now - timeStart).TotalSeconds
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
 			}

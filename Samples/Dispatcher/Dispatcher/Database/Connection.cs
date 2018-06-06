@@ -28,7 +28,7 @@ namespace Dispatcher.Database
 			try
 			{
 				//Connect to the server
-				this.FClient = new MongoClient();
+				this.FClient = new MongoClient("mongodb://10.0.0.17");
 				this.FDatabase = this.FClient.GetDatabase("Dispatcher");
 
 				//Check if connected
@@ -39,17 +39,17 @@ namespace Dispatcher.Database
 				//Serialize enums as strings
 				{
 					ConventionRegistry.Register("EnumStringConvention"
-						,new ConventionPack {
+						, new ConventionPack {
 							new EnumRepresentationConvention(BsonType.String)
 						}
 					, t => true);
 				}
 
-                if(this.Connected)
-                {
-                    Logger.Log<Connection>(Logger.Level.Trace, "--------------- SESION START : Database connected");
-                }
-            }
+				if (this.Connected)
+				{
+					Logger.Log<Connection>(Logger.Level.Trace, "--------------- SESION START : Database connected");
+				}
+			}
 			catch (Exception e)
 			{
 				Logger.Log<Connection>(Logger.Level.Warning, "Failed to connect to MongoDB for DataLogging : " + e.Message);
@@ -60,7 +60,7 @@ namespace Dispatcher.Database
 
 		public IMongoCollection<T> GetCollection<T>()
 		{
-			if(!this.Connected)
+			if (!this.Connected)
 			{
 				throw (new Exception("No database connection"));
 			}
@@ -71,11 +71,11 @@ namespace Dispatcher.Database
 
 		public void Log<T>(T data)
 		{
-            if(this.Connected)
-            {
-                var collection = this.GetCollection<T>();
-                collection.InsertOne(data);
-            }
+			if (this.Connected)
+			{
+				var collection = this.GetCollection<T>();
+				collection.InsertOne(data);
+			}
 		}
 
 		public IMongoDatabase Database
