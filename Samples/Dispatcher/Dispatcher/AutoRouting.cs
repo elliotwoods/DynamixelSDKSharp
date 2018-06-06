@@ -145,6 +145,8 @@ namespace Dispatcher
 		{
 			object responseObject = null;
 
+			DateTime timeStart = DateTime.Now;
+
 			try
 			{
 				//set the thread name
@@ -194,7 +196,8 @@ namespace Dispatcher
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = true,
-					data = responseObject
+					data = responseObject,
+					responseTime = (DateTime.Now - timeStart).TotalSeconds
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
 			}
@@ -213,7 +216,8 @@ namespace Dispatcher
 				return new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = false,
-					exception = new Utils.ExceptionMessage(e)
+					exception = new Utils.ExceptionMessage(e),
+					responseTime = (DateTime.Now - timeStart).TotalSeconds
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
 			}

@@ -1,8 +1,11 @@
 {
 	"Registers": [
 		"Goal Position",
-		"Present Position"
+		"Present Position",
+		"Present Current",
+		"Present Temperature"
+
 	],
 	"Max Servo Count": 32,
-	"Period" :  5
+	"Period" :  10
 }
