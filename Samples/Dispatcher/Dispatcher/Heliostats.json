@@ -1,0 +1,50 @@
+﻿[
+	{
+		"ID": 1,
+		"axis1ServoID": 1,
+		"axis2ServoID": 2,
+		"hamParameters": {
+			"pivotPoint": {
+				"x": 0.0,
+				"y": 0.0,
+				"z": 0.0
+			},
+			"pitchParameters": {
+				"m": 0.0,
+				"c": 0.0,
+				"pitch": 0.0,
+				"rotation": 0.0
+			},
+			"rotationParameters": {
+				"m": 0.0,
+				"c": 0.0,
+				"pitch": 0.0,
+				"rotation": 0.0
+			}
+		}
+	},
+	{
+		"ID": 2,
+		"axis1ServoID": 3,
+		"axis2ServoID": 4,
+		"hamParameters": {
+			"pivotPoint": {
+				"x": 0.0,
+				"y": 0.0,
+				"z": 0.0
+			},
+			"pitchParameters": {
+				"m": 0.0,
+				"c": 0.0,
+				"pitch": 0.0,
+				"rotation": 0.0
+			},
+			"rotationParameters": {
+				"m": 0.0,
+				"c": 0.0,
+				"pitch": 0.0,
+				"rotation": 0.0
+			}
+		}
+	}
+]

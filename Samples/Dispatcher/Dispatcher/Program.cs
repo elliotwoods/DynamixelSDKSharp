@@ -3,16 +3,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.IO;
+
 using Nancy.Hosting.Self;
+
+using Newtonsoft.Json;
+
+using DynamixelSDKSharp;
 
 namespace Dispatcher
 {
 	class Program
 	{
+		public static List<Models.Heliostat> Heliostats = new List<Models.Heliostat>();
+
 		public const int Port = 8000;
 		static void Main()
 		{
-			HostConfiguration hostConfiguration = new HostConfiguration();
+				HostConfiguration hostConfiguration = new HostConfiguration();
 			{
 				hostConfiguration.UrlReservations.CreateAutomatically = true;
 				hostConfiguration.RewriteLocalhost = true;
