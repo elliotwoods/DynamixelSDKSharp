@@ -1,4 +1,5 @@
 ﻿using Dispatcher.Database;
+using Dispatcher.Models;
 using DynamixelSDKSharp;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace Dispatcher.Requests.Heliostat
 {
 	class NavigateToSolar : IRequest
 	{
-		private static string hamPointToPointURL = "http://localhost:8080/navigatePointToPoint";
+		private static string hamURL = Program.hamBaseURL + "navigate";
 
 		public object HTTPClient { get; private set; }
 
@@ -22,6 +23,12 @@ namespace Dispatcher.Requests.Heliostat
 		{
 			//get the last and next solar vector from MongoDB
 			var collection = Database.Connection.X.GetCollection<Database.Models.SolarVector>();
+
+			collection.InsertOne(new Database.Models.SolarVector
+			{
+				time = DateTime.Now,
+				vector = new Vector3D(0, -1 / Math.Sqrt(2), -1 / Math.Sqrt(2))
+			});
 
 			var now = DateTime.Now;
 
@@ -82,46 +89,76 @@ namespace Dispatcher.Requests.Heliostat
 			var heliostats = Program.Heliostats;
 			var HTTPClient = new HttpClient();
 
+			var responses = new Dictionary<int, dynamic>();
+			
 			//We should be using a Task.WhenAll here to make the requests async in parallel
 			foreach (var heliostat in heliostats)
 			{
-				//take the current register (maybe just take local cache)
-				var a1Before = heliostat.axis1Servo.Registers[RegisterType.GoalPosition].Value;
-				var a2Before = heliostat.axis1Servo.Registers[RegisterType.GoalPosition].Value;
-
-				//feed the vector and params into HAM request
-				Models.HeliostatHAMNavigateResponse servoValues;
 				try
 				{
+					//take the current register (maybe just take local cache)
+					var a1Before = heliostat.axis1Servo.Registers[RegisterType.GoalPosition].Value;
+					var a2Before = heliostat.axis1Servo.Registers[RegisterType.GoalPosition].Value;
+
+					//get the target from the table
+					var pivotAndTarget = PivotsAndTargets.X.GetForHeliostatByID(heliostat.ID);
+
+					var targetPoint = new Vector3
+					{
+						x = pivotAndTarget.TargetX,
+						y = pivotAndTarget.TargetY,
+						z = pivotAndTarget.TargetZ
+					};
+
+					var source = new Vector3
+					{
+						x = (float) solarVector.X,
+						y = (float) solarVector.Y,
+						z = (float) solarVector.Z
+					};
+
+					//feed the vector and params into HAM request
+					Models.HeliostatHAMNavigateResponse servoValues;
 					var requestObject = new Models.HeliostatHAMVectorToPointRequest
 					{
 						hamParameters = heliostat.hamParameters,
 						currentServoSetting = new Models.HeliostatHamRequestCurrentPosition
-						{	
+						{
 							rotation = a1Before,
 							pitch = a2Before
-						}
+						},
+						targetPoint = targetPoint,
+						source = source
 					};
 
 					var requestContent = new StringContent(JsonConvert.SerializeObject(requestObject));
-					var result = HTTPClient.PostAsync(hamPointToPointURL, requestContent).Result;
+					var result = HTTPClient.PostAsync(hamURL, requestContent).Result;
 					result.EnsureSuccessStatusCode();
 
 					var response = result.Content.ReadAsStringAsync().Result;
 
 					servoValues = JsonConvert.DeserializeObject<Models.HeliostatHAMNavigateResponse>(response);
-				}
-				catch (Exception ex)
-				{
-					throw new Exception("Couldn't navigate : " + ex.Message);
-				}
 
-				//write the values to servos
-				heliostat.axis1Servo.WriteValue(RegisterType.GoalPosition, servoValues.rotation);
-				heliostat.axis2Servo.WriteValue(RegisterType.GoalPosition, servoValues.pitch);
+					//write the values to servos
+					heliostat.axis1Servo.WriteValue(RegisterType.GoalPosition, servoValues.rotation);
+					heliostat.axis2Servo.WriteValue(RegisterType.GoalPosition, servoValues.pitch);
+
+					responses.Add(heliostat.ID, new
+					{
+						success = true
+					});
+				}
+				catch (Exception e)
+				{
+					responses.Add(heliostat.ID, new
+					{
+						success = false,
+						exception = e
+					});
+				}
 			}
 
-			return new { };
+			return responses;
 		}
 	}
 }
