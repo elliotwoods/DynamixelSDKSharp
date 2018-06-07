@@ -1370,7 +1370,7 @@
 	{
 		"ID": 54,
 		"axis1ServoID": 107,
-		"axis2ServoID": 108,
+		"axis2ServoID": 222,
 		"hamParameters": {
 			"pivotPoint": {
 				"x": 3.61,
