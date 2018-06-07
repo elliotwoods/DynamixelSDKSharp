@@ -54,7 +54,7 @@ namespace Dispatcher.Requests.Heliostat
 
 					var response = result.Content.ReadAsStringAsync().Result;
 
-					var rotPitch = JsonConvert.DeserializeObject<Models.HeliostatHAMPointToPointResponse>(response);
+					var rotPitch = JsonConvert.DeserializeObject<Models.HeliostatHAMNavigateResponse>(response);
 
 					h.axis1Servo.WriteValue(RegisterType.GoalPosition, rotPitch.rotation);
 					h.axis2Servo.WriteValue(RegisterType.GoalPosition, rotPitch.pitch);
