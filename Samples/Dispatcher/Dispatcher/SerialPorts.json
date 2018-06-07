@@ -1,7 +1,23 @@
 ﻿[
 	{
-		"PortName" : "Elliot's USB",
-		"PortAddress" : "COM4",
-		"Baud" : 115200
+		"PortName": "Elliot's USB",
+		"PortAddress": "COM13",
+		"Baud": 115200
+	},
+	{
+		"PortName": "Elliot's USB",
+		"PortAddress": "COM14",
+		"Baud": 115200
+	},
+	{
+		"PortName": "Elliot's USB",
+		"PortAddress": "COM15",
+		"Baud": 115200
+	},
+	{
+		"PortName": "Elliot's USB",
+		"PortAddress": "COM16",
+		"Baud": 115200
 	}
 ]
+
