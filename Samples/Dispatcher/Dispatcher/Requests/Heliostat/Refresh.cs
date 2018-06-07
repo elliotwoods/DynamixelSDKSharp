@@ -31,7 +31,7 @@ namespace Dispatcher.Requests.Heliostat
 					h.axis1Servo = PortPool.X.Servos[h.axis1ServoID];
 				} catch (Exception ex)
 				{
-					throw new Exception(String.Format("Couldn't find axis 1 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
+					//throw new Exception(String.Format("Couldn't find axis 1 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
 				}
 
 				try
@@ -40,7 +40,7 @@ namespace Dispatcher.Requests.Heliostat
 				}
 				catch (Exception ex)
 				{
-					throw new Exception(String.Format("Couldn't find axis 2 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
+					//throw new Exception(String.Format("Couldn't find axis 2 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
 				}
 			}
 

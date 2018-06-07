@@ -132,6 +132,7 @@
     <Compile Include="Requests\Group\MoveAndLogAll.cs" />
     <Compile Include="Requests\Heliostat\Calibrate.cs" />
     <Compile Include="Requests\Heliostat\NagivatePointToPoint.cs" />
+    <Compile Include="Requests\Heliostat\NavigateHeliostatsPointToPoint.cs" />
     <Compile Include="Requests\Heliostat\Refresh.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />

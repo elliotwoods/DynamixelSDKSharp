@@ -6,37 +6,37 @@
 	},
 	{
 		"PortName": "B",
-		"PortAddress": "COM10",
+		"PortAddress": "COM5",
 		"Baud": 115200
 	},
 	{
 		"PortName": "C",
-		"PortAddress": "COM11",
+		"PortAddress": "COM6",
 		"Baud": 115200
 	},
 	{
 		"PortName": "D",
-		"PortAddress": "COM12",
+		"PortAddress": "COM7",
 		"Baud": 115200
 	},
 	{
 		"PortName": "E",
-		"PortAddress": "COM13",
+		"PortAddress": "COM8",
 		"Baud": 115200
 	},
 	{
 		"PortName": "F",
-		"PortAddress": "COM14",
+		"PortAddress": "COM10",
 		"Baud": 115200
 	},
 	{
 		"PortName": "G",
-		"PortAddress": "COM15",
+		"PortAddress": "COM11",
 		"Baud": 115200
 	},
 	{
 		"PortName": "H",
-		"PortAddress": "COM16",
+		"PortAddress": "COM12",
 		"Baud": 115200
 	}
 ]
