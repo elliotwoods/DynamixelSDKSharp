@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dispatcher.Models
 {
-	class HeliostatHAMPointToPointResponse
+	class HeliostatHAMNavigateResponse
 	{
 		public int rotation { get; set; }
 		public int pitch { get; set; }

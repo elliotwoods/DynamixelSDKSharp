@@ -8,16 +8,8 @@ using Newtonsoft.Json;
 
 namespace Dispatcher.Models
 {
-	public sealed class HeliostatHamRequestCurrentPosition
-	{
-		//A1
-		public int rotation { get; set; } = -1;
 
-		//A2
-		public int pitch { get; set; } = -1;
-	}
-
-	class HeliostatHAMPointToPointRequest
+	class HeliostatHAMVectorToPointRequest
 	{
 		[JsonProperty(PropertyName = "params")]
 		public Models.HeliostatHAMParams hamParameters { get; set; }
