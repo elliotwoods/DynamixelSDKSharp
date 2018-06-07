@@ -88,6 +88,8 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
@@ -108,6 +110,11 @@
     <Compile Include="Database\SystemLog.cs" />
     <Compile Include="Database\Registers.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Models\Heliostat.cs" />
+    <Compile Include="Models\HeliostatHAMParams.cs" />
+    <Compile Include="Models\HeliostatHAMPointToPointRequest.cs" />
+    <Compile Include="Models\HeliostatHAMPointToPointResponse.cs" />
+    <Compile Include="Models\Vector3.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="PortPool.cs" />
     <Compile Include="Program.cs" />
@@ -123,6 +130,9 @@
     <Compile Include="Requests\Group\Goto.cs" />
     <Compile Include="Requests\Data\LogRegisterAllServos.cs" />
     <Compile Include="Requests\Group\MoveAndLogAll.cs" />
+    <Compile Include="Requests\Heliostat\Calibrate.cs" />
+    <Compile Include="Requests\Heliostat\NagivatePointToPoint.cs" />
+    <Compile Include="Requests\Heliostat\Refresh.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />
     <Compile Include="Requests\Scheduler\Get.cs" />
@@ -161,6 +171,9 @@
     <Content Include="DataLogger.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Heliostats.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Safety\Constraints.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

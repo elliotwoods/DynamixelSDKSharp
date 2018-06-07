@@ -18,6 +18,11 @@
 			"OnStart": "true"
 		},
 		{
+			"Period": 0,
+			"Action": "Heliostat/Refresh",
+			"OnStart": "true"
+		},
+		{
 			"Period": 1,
 			"Action": "Data/Logger",
 			"OnStart": "true"

@@ -1,7 +1,43 @@
 ﻿[
 	{
-		"PortName" : "Elliot's USB",
-		"PortAddress" : "COM5",
-		"Baud" : 115200
+		"PortName": "A",
+		"PortAddress": "COM4",
+		"Baud": 115200
+	},
+	{
+		"PortName": "B",
+		"PortAddress": "COM10",
+		"Baud": 115200
+	},
+	{
+		"PortName": "C",
+		"PortAddress": "COM11",
+		"Baud": 115200
+	},
+	{
+		"PortName": "D",
+		"PortAddress": "COM12",
+		"Baud": 115200
+	},
+	{
+		"PortName": "E",
+		"PortAddress": "COM13",
+		"Baud": 115200
+	},
+	{
+		"PortName": "F",
+		"PortAddress": "COM14",
+		"Baud": 115200
+	},
+	{
+		"PortName": "G",
+		"PortAddress": "COM15",
+		"Baud": 115200
+	},
+	{
+		"PortName": "H",
+		"PortAddress": "COM16",
+		"Baud": 115200
 	}
 ]
+
