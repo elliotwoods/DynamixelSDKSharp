@@ -140,6 +140,7 @@
     <Compile Include="Requests\Heliostat\Calibrate.cs" />
     <Compile Include="Requests\Heliostat\NagivatePointToPoint.cs" />
     <Compile Include="Requests\Heliostat\NavigateHeliostatsPointToPoint.cs" />
+    <Compile Include="Requests\Heliostat\NavigateHeliostatsWithSolar.cs" />
     <Compile Include="Requests\Heliostat\NavigateToSolar.cs" />
     <Compile Include="Requests\Heliostat\Refresh.cs" />
     <Compile Include="Requests\Scheduler\Disable.cs" />
@@ -193,6 +194,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="SerialPorts.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="targets.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

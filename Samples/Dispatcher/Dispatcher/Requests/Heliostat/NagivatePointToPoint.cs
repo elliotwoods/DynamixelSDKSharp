@@ -15,7 +15,7 @@ namespace Dispatcher.Requests.Heliostat
 	[DebuggerDisplay("Heliostat = {heliostatID}, targetPoint = {targetPoint}, source = {source}")]
 	public class NavigatePointToPoint : IRequest
 	{
-		private static string hamPointToPointURL = "http://10.0.0.27:8080/navigatePointToPoint";
+		private static string hamPointToPointURL =  Program.HAMBaseURL + "navigatePointToPoint";
 
 		public int heliostatID { get; set; }
 

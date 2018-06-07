@@ -15,7 +15,9 @@ namespace Dispatcher
 {
 	class Program
 	{
-		public static List<Models.Heliostat> Heliostats = new List<Models.Heliostat>();
+        public static string HAMBaseURL = "http://10.0.0.27:8080/";
+
+        public static List<Models.Heliostat> Heliostats = new List<Models.Heliostat>();
 
 		public const int Port = 8000;
 		static void Main()
