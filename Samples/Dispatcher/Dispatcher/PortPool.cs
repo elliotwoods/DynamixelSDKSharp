@@ -121,12 +121,9 @@ namespace Dispatcher
 
 					var servosFoundStringList = servosFound.Select(x => x.ToString()).ToList();
 					Logger.Log(Logger.Level.Trace
-						, String.Format("Found servos {0}: {1}", String.Join(", ", servosFound.Count, servosFoundStringList))
+						, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList))
 						, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
 				}
-
-				Logger.Log<PortPool>(Logger.Level.Trace
-						, String.Format("Found {0} servos total", this.Servos.Count));
 			}
 
 			//initialise settings on servos
