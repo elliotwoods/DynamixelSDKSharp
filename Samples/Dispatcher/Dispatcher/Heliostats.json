@@ -1369,8 +1369,8 @@
 	},
 	{
 		"ID": 54,
-		"axis1ServoID": 107,
-		"axis2ServoID": 222,
+		"axis1ServoID": 207,
+		"axis2ServoID": 208,
 		"hamParameters": {
 			"pivotPoint": {
 				"x": 3.61,
@@ -2089,8 +2089,8 @@
 	},
 	{
 		"ID": 76,
-		"axis1ServoID": 151,
-		"axis2ServoID": 152,
+		"axis1ServoID": 205,
+		"axis2ServoID": 206,
 		"hamParameters": {
 			"pivotPoint": {
 				"x": -3.144,
