@@ -10,14 +10,12 @@ using DynamixelSDKSharp;
 
 namespace Dispatcher.Requests.Heliostat
 {
-    [RequestHandler(Method = Method.POST)]
+    [RequestHandler(Method = Method.GET)]
     [Serializable]
     class NavigateHeliostatsWithSolar : IRequest
     {
-        private static string hamNavigateURL = Program.HAMBaseURL + "navigate";
+        private static string hamNavigateURL = Program.HAMBaseURL + "navigateSunToPoint";
         private static string targetCSVPath = "targets.csv";
-
-        public Models.Vector3 solarVector { get; set; }
 
         public object Perform()
         {
@@ -32,12 +30,11 @@ namespace Dispatcher.Requests.Heliostat
                     var x = (float)Double.Parse(line.Split(',')[4]);
                     var y = (float)Double.Parse(line.Split(',')[5]);
                     var z = (float)Double.Parse(line.Split(',')[6]);
-                    /*var x = 5.5f;
+                    /*var x = 5.0f;
                     var y = 2.0f;
                     var z = 4.0f;*/
 
                     var v = new Models.Vector3(x, y, z);
-                    v.convertToUnit();
 
                     targets.Add(hstat, v);
                 }
@@ -54,7 +51,6 @@ namespace Dispatcher.Requests.Heliostat
                 if (h.axis1Servo == null || h.axis2Servo == null) continue;
 
                 var hamObject = new Models.HeliostatHAMPointToPointRequest();
-                hamObject.source = solarVector;
                 hamObject.targetPoint = targets[h.ID];
                 hamObject.hamParameters = h.hamParameters;
 

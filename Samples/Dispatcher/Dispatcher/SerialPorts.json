@@ -1,42 +1,32 @@
 ﻿[
 	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM4",
-		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
+		"PortName" : "East ?",
 		"PortAddress" : "COM11",
 		"Baud" : 115200
 	},
 	{
-		"PortName" : "West ?",
+		"PortName" : "East ?",
 		"PortAddress" : "COM15",
 		"Baud" : 115200
 	},
 	{
-		"PortName" : "West ?",
+		"PortName" : "East ?",
 		"PortAddress" : "COM16",
 		"Baud" : 115200
 	},
 	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM20",
+		"PortName" : "East ?",
+		"PortAddress" : "COM23",
 		"Baud" : 115200
 	},
 	{
 		"PortName" : "West ?",
-		"PortAddress" : "COM21",
+		"PortAddress" : "COM22",
 		"Baud" : 115200
 	},
 	{
 		"PortName" : "West ?",
-		"PortAddress" : "COM18",
+		"PortAddress" : "COM4",
 		"Baud" : 115200
-	},
-	{
-		"PortName" : "West ?",
-		"PortAddress" : "COM19",
-		"Baud" : 115200
-	},
+	}
 ]
