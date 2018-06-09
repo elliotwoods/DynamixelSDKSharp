@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Dispatcher.Requests.Calibrate
+namespace Dispatcher.Requests.ManualCalibration
 {
 	[RequestHandler(Method = Method.POST)]
 	[Serializable]

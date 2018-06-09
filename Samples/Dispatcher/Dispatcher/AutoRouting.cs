@@ -213,13 +213,15 @@ namespace Dispatcher
 					}
 				}
 
-				return new TextResponse(JsonConvert.SerializeObject(new
+				var errorResponse = new TextResponse(JsonConvert.SerializeObject(new
 				{
 					success = false,
 					exception = new Utils.ExceptionMessage(e),
 					responseTime = (DateTime.Now - timeStart).TotalSeconds
 				}, ProductDatabase.JsonSerializerSettings)
 				, "application/json");
+				errorResponse.StatusCode = HttpStatusCode.InternalServerError;
+				return errorResponse;
 			}
 		}
 	}

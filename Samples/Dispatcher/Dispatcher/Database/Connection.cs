@@ -28,7 +28,7 @@ namespace Dispatcher.Database
 			try
 			{
 				//Connect to the server
-				this.FClient = new MongoClient("mongodb://10.0.0.17");
+				this.FClient = new MongoClient("mongodb://localhost");
 				this.FDatabase = this.FClient.GetDatabase("Dispatcher");
 
 				//Check if connected
