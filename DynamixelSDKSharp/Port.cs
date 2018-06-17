@@ -129,15 +129,7 @@ namespace DynamixelSDKSharp
 			});
 
 			//add new found servos
-			foreach(var servoID in foundServoIDs)
-			{
-				if(!this.FServos.ContainsKey(servoID))
-				{
-					var modelNumber = this.Read(servoID, 0, 2);
-					var servo = new Servo(this, servoID, modelNumber);
-					this.FServos.Add(servoID, servo);
-				}
-			}
+			this.AddServos(foundServoIDs);
 
 			//remove any servos not seen any more
 			{
@@ -168,6 +160,19 @@ namespace DynamixelSDKSharp
 			}
 		}
 
+		public void AddServos(IEnumerable<byte> servoIDs)
+		{
+			foreach (var servoID in servoIDs)
+			{
+				if (!this.FServos.ContainsKey(servoID))
+				{
+					var modelNumber = this.GetModelNumber(servoID);
+					var servo = new Servo(this, servoID, modelNumber);
+					this.FServos.Add(servoID, servo);
+				}
+			}
+		}
+
 		private void CheckTxRxErrors()
 		{
 			{
@@ -187,6 +192,17 @@ namespace DynamixelSDKSharp
 					throw (new Exception("getRxPacketError : " + errorMessage));
 				}
 			}
+		}
+
+		public void Reboot(byte id)
+		{
+			this.ThrowIfNotOpen();
+			this.FWorkerThread.DoSync(() =>
+			{
+				NativeFunctions.reboot(this.FPortNumber
+					, (int)this.ProtocolVersion
+					, id);
+			});
 		}
 
 		private void WriteOnThread(byte id, Register register)
@@ -387,6 +403,22 @@ namespace DynamixelSDKSharp
 			});
 
 			return value;
+		}
+
+		public int GetModelNumber(byte id)
+		{
+			this.ThrowIfNotOpen();
+
+			int result = -1;
+
+			this.FWorkerThread.DoSync(() =>
+			{
+				result = (int) NativeFunctions.pingGetModelNum(this.FPortNumber
+					, (int) this.ProtocolVersion
+					, id);
+			});
+
+			return result;
 		}
 
 		public Dictionary<byte, int> GroupSyncRead(IEnumerable<byte> ids, ushort address, int size)

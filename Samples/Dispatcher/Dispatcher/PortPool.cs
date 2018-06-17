@@ -21,6 +21,11 @@ namespace Dispatcher
 
 	class PortPool
 	{
+		class ServoCache : Dictionary<string, List<byte>>
+		{
+
+		}
+
 		//Singleton
 		public static readonly PortPool X = new PortPool();
 
@@ -31,35 +36,48 @@ namespace Dispatcher
 		public SortedDictionary<int, Servo> Servos { get; private set; }  = new SortedDictionary<int, Servo>();
 
         private const string ConfigurationJsonFilename = "SerialPorts.json";
+        private const string ServoCacheJsonFilename = "ServoCache.json";
 
 		public PortPool()
 		{
 			// since we're static, we don't want to do anything which could cause an exception in initialisation
 		}
 
-		public void Refresh()
+		public void Refresh(bool useServoCache)
 		{
 			//HACK! override found ports and use a list from json
             using (StreamReader file = new StreamReader(ConfigurationJsonFilename))
             {
                 var json = file.ReadToEnd();
-                foreach (var p in JsonConvert.DeserializeObject<IEnumerable<PresetSerialPort>>(json)) {
-                    if (!this.Ports.ContainsKey(p.PortAddress))
+				var portsConfig = JsonConvert.DeserializeObject<IEnumerable<PresetSerialPort>>(json);
+				foreach (var portConfig in portsConfig) {
+                    if (!this.Ports.ContainsKey(portConfig.PortAddress))
                     {
-                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0} ({1})", p.PortAddress, p.PortName));
+                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Found port : {0} ({1})", portConfig.PortAddress, portConfig.PortName));
 
-                        var port = new Port(p.PortAddress, (BaudRate)p.Baud);
-						port.Name = p.PortName;
+                        var port = new Port(portConfig.PortAddress, (BaudRate)portConfig.Baud);
+						port.Name = portConfig.PortName;
 
-                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", p.PortAddress, port.IsOpen));
+                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", portConfig.PortAddress, port.IsOpen));
 
-                        this.Ports.Add(p.PortAddress, port);
+                        this.Ports.Add(portConfig.PortAddress, port);
                     } else
 					{
-						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Couldn't find port {0} ({1}) on system.", p.PortAddress, p.PortName));
+						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Couldn't find port {0} ({1}) on system.", portConfig.PortAddress, portConfig.PortName));
 					}
                 }
             }
+
+			//Use cached servo ID's if shift is pressed
+			ServoCache servoCache = null;
+			if(useServoCache)
+			{
+				using(StreamReader file = new StreamReader(ServoCacheJsonFilename))
+				{
+					var json = file.ReadToEnd();
+					servoCache = JsonConvert.DeserializeObject<ServoCache>(json);
+				}
+			}
 
 			//check if any ports have become closed
 			{
@@ -84,7 +102,29 @@ namespace Dispatcher
 					Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Searching for servos on port {0}", port.Name));
 					try
 					{
-						port.Refresh();
+						if(useServoCache && servoCache.ContainsKey(port.Address))
+						{
+							//use cache
+							port.AddServos(servoCache[port.Address]);
+						}
+						else
+						{
+							//find servos
+							port.Refresh();
+						}
+
+						var servos = port.Servos.Values;
+						foreach(var servo in servos)
+						{
+							try
+							{
+								servo.ReadRegister(RegisterType.PresentPosition);
+							}
+							catch(Exception e)
+							{
+								servo.Reboot();
+							}
+						}
 					}
 					catch(Exception e)
 					{
@@ -123,6 +163,26 @@ namespace Dispatcher
 					Logger.Log(Logger.Level.Trace
 						, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList))
 						, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
+				}
+
+				Logger.Log<PortPool>(Logger.Level.Trace
+						, String.Format("Total servos count : {0}", this.Servos.Count));
+			}
+
+			//save results to cache file
+			{
+				//rebuild the cache
+				servoCache = new ServoCache();
+				foreach(var port in this.Ports.Values)
+				{
+					servoCache.Add(port.Address, port.ServoIDs);
+				}
+
+				//save the cache
+				using (var file = new StreamWriter(ServoCacheJsonFilename))
+				{
+					var json = JsonConvert.SerializeObject(servoCache);
+					file.Write(json);
 				}
 			}
 

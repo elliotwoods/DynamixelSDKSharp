@@ -7,11 +7,21 @@ using System.Threading.Tasks;
 
 namespace DynamixelSDKSharp
 {
+	public class ServoHardwareErrorException : Exception
+	{
+		public ServoHardwareErrorException()
+		{
+
+		}
+	}
+
 	public class Servo
 	{
 		public byte ID { get; private set; }
 		public Port Port { get; private set; }
 		public ProductSpecification ProductSpecification { get; private set; }
+
+		public bool IsErrorState { get; private set; } = false;
 
 		public Servo(Port port, byte id, int modelNumber)
 		{
@@ -21,11 +31,22 @@ namespace DynamixelSDKSharp
 			this.ProductSpecification = ProductDatabase.X.GetProductSpecification(modelNumber);
 
 			this.Registers = (Registers)this.ProductSpecification.Registers.Clone();
-			this.ReadAll();
+
+			this.UpdateErrorState();
 		}
-		
+
+		private void UpdateErrorState()
+		{
+			
+		}
+
 		[JsonIgnore]
 		public Registers Registers;
+
+		public void Reboot()
+		{
+			this.Port.Reboot(this.ID);
+		}
 
 		public void ReadAll()
 		{

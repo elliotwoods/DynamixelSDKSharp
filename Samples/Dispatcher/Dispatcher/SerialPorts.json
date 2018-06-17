@@ -33,6 +33,11 @@
 		"PortName": "G",
 		"PortAddress": "COM7",
 		"Baud": 115200
+	},
+	{
+		"PortName": "H - Main 3`",
+		"PortAddress": "COM3",
+		"Baud": 115200
 	}
 ]
 

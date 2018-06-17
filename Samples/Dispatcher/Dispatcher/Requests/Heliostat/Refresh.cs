@@ -16,6 +16,7 @@ namespace Dispatcher.Requests.Heliostat
 
 		public object Perform()
 		{
+			//load the json file into a List
 			using (StreamReader file = new StreamReader(HelioStatsConfigurationJsonPath))
 			{
 				var json = file.ReadToEnd();
@@ -24,13 +25,15 @@ namespace Dispatcher.Requests.Heliostat
 
 			Console.WriteLine("Loaded {0} heliostats from {1}.", Program.Heliostats.Count, HelioStatsConfigurationJsonPath);
 
+			//Check for Servos which are determined in teh heliostats file but we haven't find on any serial ports
             var servoHeliostatMismatchLog = new List<string>();
 			foreach (var h in Program.Heliostats)
 			{
 				try
 				{
 					h.axis1Servo = PortPool.X.Servos[h.axis1ServoID];
-				} catch (Exception ex)
+				}
+				catch (Exception ex)
 				{
                     servoHeliostatMismatchLog.Add(String.Format("Couldn't find axis 1 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
 				}

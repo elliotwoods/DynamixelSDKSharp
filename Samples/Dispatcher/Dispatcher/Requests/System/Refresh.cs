@@ -10,7 +10,7 @@ namespace Dispatcher.Requests.System
 	{
 		public object Perform()
 		{
-			PortPool.X.Refresh();
+			PortPool.X.Refresh(false);
 			return new {
 				servoCount = PortPool.X.Servos.Count,
 				portCount = PortPool.X.Ports.Count

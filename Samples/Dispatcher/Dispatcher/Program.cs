@@ -10,6 +10,8 @@ using Nancy.Hosting.Self;
 using Newtonsoft.Json;
 
 using DynamixelSDKSharp;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Dispatcher
 {
@@ -20,6 +22,8 @@ namespace Dispatcher
         public static List<Models.Heliostat> Heliostats = new List<Models.Heliostat>();
 
 		public const int Port = 8000;
+
+		[STAThread]
 		static void Main()
 		{
 				HostConfiguration hostConfiguration = new HostConfiguration();
@@ -47,6 +51,10 @@ namespace Dispatcher
 				{
 					Console.WriteLine(uriString);
 				}
+
+				//refresh the ports
+				var useServoCache = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+				PortPool.X.Refresh(useServoCache);
 
 				//start scheduler (it will start with making requests to the host, so must be after host starts)
 				Scheduler.X.Start();

@@ -18,9 +18,24 @@ namespace Dispatcher.Requests.ManualCalibration
 	{
 		public object Perform()
 		{
+			var manualCalibrationPerHeliostat = Database.Models.ManualCalibration.GetLatestPerHeliostat();
 			//Set registers for all heliostats
 			foreach (var h in Program.Heliostats)
 			{
+				int deltaA1, deltaA2;
+				if (manualCalibrationPerHeliostat.ContainsKey(h.ID))
+				{
+					var calibrationDoc = manualCalibrationPerHeliostat[h.ID];
+					deltaA1 = 2048 - (int)(calibrationDoc.axis1ServoRegisters[RegisterType.PresentPosition.ToString()]);
+					deltaA2 = (int)((2048 - calibrationDoc.axis2ServoRegisters[RegisterType.PresentPosition.ToString()]) - (calibrationDoc.InclinometerValue * 4096 / 360));
+				}
+				else
+				{
+					deltaA1 = 0;
+					deltaA2 = 0;
+				}
+
+
 				try
 				{
 					h.axis1Servo = PortPool.X.Servos[h.axis1ServoID];
@@ -38,7 +53,7 @@ namespace Dispatcher.Requests.ManualCalibration
 					h.axis2Servo.WriteValue(RegisterType.ProfileVelocity, 10);
 					h.axis2Servo.WriteValue(RegisterType.ProfileAcceleration, 1);
 					h.axis2Servo.WriteValue(RegisterType.PositionIGain, 200);
-					h.axis2Servo.WriteValue(RegisterType.GoalPosition, 2048);
+					h.axis2Servo.WriteValue(RegisterType.GoalPosition, 2048 - deltaA2);
 				}
 				catch (Exception ex)
 				{

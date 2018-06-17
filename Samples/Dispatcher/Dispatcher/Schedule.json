@@ -14,21 +14,16 @@
 		},
 		{
 			"Period": 0,
-			"Action": "System/Refresh",
-			"OnStart": "true"
-		},
-		{
-			"Period": 0,
 			"Action": "Heliostat/Refresh",
 			"OnStart": "true"
 		},
 		{
-			"Period": 1,
+			"Period": 10,
 			"Action": "Data/Logger",
 			"OnStart": "true"
 		},
 		{
-			"Period" : 30,
+			"Period" : 5,
 			"Action" : "Heliostat/NavigateHeliostatsWithSolar",
 			"OnStart": "true"
 		}
