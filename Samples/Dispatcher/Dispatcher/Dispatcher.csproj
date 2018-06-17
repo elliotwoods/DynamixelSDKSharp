@@ -148,7 +148,6 @@
     <Compile Include="Requests\Heliostat\NavigateToSolar.cs" />
     <Compile Include="Requests\Heliostat\Nudge.cs" />
     <Compile Include="Requests\Heliostat\Refresh.cs" />
-    <Compile Include="Requests\Heliostat\UpdatePosition.cs" />
     <Compile Include="Requests\ManualCalibration\LogServoValues.cs" />
     <Compile Include="Requests\ManualCalibration\ManualCalibrationLog.cs" />
     <Compile Include="Requests\ManualCalibration\Prepare.cs" />
