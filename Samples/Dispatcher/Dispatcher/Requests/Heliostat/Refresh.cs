@@ -24,6 +24,7 @@ namespace Dispatcher.Requests.Heliostat
 
 			Console.WriteLine("Loaded {0} heliostats from {1}.", Program.Heliostats.Count, HelioStatsConfigurationJsonPath);
 
+            var servoHeliostatMismatchLog = new List<string>();
 			foreach (var h in Program.Heliostats)
 			{
 				try
@@ -31,7 +32,7 @@ namespace Dispatcher.Requests.Heliostat
 					h.axis1Servo = PortPool.X.Servos[h.axis1ServoID];
 				} catch (Exception ex)
 				{
-					//throw new Exception(String.Format("Couldn't find axis 1 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
+                    servoHeliostatMismatchLog.Add(String.Format("Couldn't find axis 1 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
 				}
 
 				try
@@ -40,9 +41,19 @@ namespace Dispatcher.Requests.Heliostat
 				}
 				catch (Exception ex)
 				{
-					//throw new Exception(String.Format("Couldn't find axis 2 servo ({0}) for heliostat {1}", h.axis1ServoID, h.ID));
+					servoHeliostatMismatchLog.Add(String.Format("Couldn't find axis 2 servo ({0}) for heliostat {1}", h.axis2ServoID, h.ID));
 				}
 			}
+
+            if (servoHeliostatMismatchLog.Count > 0)
+            {
+                var s = "";
+                foreach (var mm in servoHeliostatMismatchLog)
+                {
+                    s += mm + "\n";
+                }
+                throw new Exception("Servo/Heliostat mismatches:\n" + s);
+            }
 
 			return new {
 				heliostatCount = Program.Heliostats.Count

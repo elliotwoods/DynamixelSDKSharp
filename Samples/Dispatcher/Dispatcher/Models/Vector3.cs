@@ -13,5 +13,25 @@ namespace Dispatcher.Models
 		public float x { get; set; }
 		public float y { get; set; }
 		public float z { get; set; }
+
+        public Vector3()
+        {
+
+        }
+
+        public Vector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public void convertToUnit()
+        {
+            var magnitude = (float) Math.Sqrt((x * x) + (y * y) + (z * z));
+            x /= magnitude;
+            y /= magnitude;
+            z /= magnitude;
+        }
 	}
 }

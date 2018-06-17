@@ -26,6 +26,11 @@
 			"Period": 1,
 			"Action": "Data/Logger",
 			"OnStart": "true"
+		},
+		{
+			"Period" : 30,
+			"Action" : "Heliostat/NavigateHeliostatsWithSolar",
+			"OnStart": "true"
 		}
 	]
 }

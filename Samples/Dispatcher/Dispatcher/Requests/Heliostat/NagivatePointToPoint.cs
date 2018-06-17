@@ -15,7 +15,7 @@ namespace Dispatcher.Requests.Heliostat
 	[DebuggerDisplay("Heliostat = {heliostatID}, targetPoint = {targetPoint}, source = {source}")]
 	public class NavigatePointToPoint : IRequest
 	{
-		private static string hamPointToPointURL = "http://localhost:8080/navigatePointToPoint";
+		private static string hamPointToPointURL =  Program.HAMBaseURL + "navigatePointToPoint";
 
 		public int heliostatID { get; set; }
 
@@ -47,7 +47,7 @@ namespace Dispatcher.Requests.Heliostat
 
 				var response = result.Content.ReadAsStringAsync().Result;
 
-				var rotPitch = JsonConvert.DeserializeObject<Models.HeliostatHAMPointToPointResponse>(response);
+				var rotPitch = JsonConvert.DeserializeObject<Models.HeliostatHAMNavigateResponse>(response);
 
 				heliostat.axis1Servo.WriteValue(RegisterType.GoalPosition, rotPitch.rotation);
 				heliostat.axis2Servo.WriteValue(RegisterType.GoalPosition, rotPitch.pitch);
