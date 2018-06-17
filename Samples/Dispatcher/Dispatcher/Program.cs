@@ -26,7 +26,7 @@ namespace Dispatcher
 		[STAThread]
 		static void Main()
 		{
-				HostConfiguration hostConfiguration = new HostConfiguration();
+			HostConfiguration hostConfiguration = new HostConfiguration();
 			{
 				hostConfiguration.UrlReservations.CreateAutomatically = true;
 				hostConfiguration.RewriteLocalhost = true;
