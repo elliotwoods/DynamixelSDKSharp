@@ -35,11 +35,15 @@ namespace Dispatcher
 
 			public void Perform()
 			{
-				this.LastAttemptPerformed = DateTime.Now;
+				//check if any exclusive locks are blocking requests
+				if(!PortPool.X.Lock.IsWriterLockHeld)
+				{
+					this.LastAttemptPerformed = DateTime.Now;
 
-				var httpRequest = (HttpWebRequest)WebRequest.Create(String.Format("http://localhost:{0}/{1}", Program.Port, this.Action));
-				httpRequest.Method = "GET";
-				var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+					var httpRequest = (HttpWebRequest)WebRequest.Create(String.Format("http://localhost:{0}/{1}", Program.Port, this.Action));
+					httpRequest.Method = "GET";
+					var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+				}
 			}
 
 			public TimeSpan TimeToNextCall

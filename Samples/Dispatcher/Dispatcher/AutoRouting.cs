@@ -193,13 +193,26 @@ namespace Dispatcher
 						break;
 				}
 
-				return new TextResponse(JsonConvert.SerializeObject(new
 				{
-					success = true,
-					data = responseObject,
-					responseTime = (DateTime.Now - timeStart).TotalSeconds
-				}, ProductDatabase.JsonSerializerSettings)
-				, "application/json");
+					var responseObjectResponse = responseObject as Nancy.Response;
+					if (responseObjectResponse != null)
+					{
+						//respond with Response
+						return responseObjectResponse;
+					}
+					else
+					{
+						//respond with Json serialization
+						return new TextResponse(JsonConvert.SerializeObject(new
+							{
+								success = true,
+								data = responseObject,
+								responseTime = (DateTime.Now - timeStart).TotalSeconds
+							}, ProductDatabase.JsonSerializerSettings)
+							, "application/json");
+					}
+				}
+				
 			}
 			catch (Exception e)
 			{

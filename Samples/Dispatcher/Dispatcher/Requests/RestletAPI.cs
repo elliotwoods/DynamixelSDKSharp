@@ -1,4 +1,5 @@
 ﻿using DynamixelSDKSharp;
+using Nancy.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,11 @@ namespace Dispatcher.Requests
 
 				public List<Header> headers = null;
 			}
+
+			public int version { get; } = 3;
+
+			[JsonProperty(PropertyName = "front-version")]
+			public string front_version { get; } = "2.18.0";
 
 			public List<Node> nodes = new List<Node>();
 		}
@@ -191,7 +197,7 @@ namespace Dispatcher.Requests
 				}
 			}
 
-			return apiExport;
+			return new TextResponse(JsonConvert.SerializeObject(apiExport, ProductDatabase.JsonSerializerSettings), "application/json");
 		}
 	}
 }
