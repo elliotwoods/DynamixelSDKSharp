@@ -129,13 +129,20 @@ namespace Dispatcher.Requests.Heliostat
 						deltaA2 = 0;
 					}
 
-                    heliostat.axis1Servo.WriteValue(RegisterType.GoalPosition
-						, rotPitch.rotation - deltaA1
-						, false);
+					if(!Safety.ServoRestManager.X.IsResting(heliostat.axis1Servo))
+					{
+						heliostat.axis1Servo.WriteValue(RegisterType.GoalPosition
+							, rotPitch.rotation - deltaA1
+							, false);
+					}
 
-					heliostat.axis2Servo.WriteValue(RegisterType.GoalPosition
-						, rotPitch.pitch - deltaA2
-						, false);
+
+					if (!Safety.ServoRestManager.X.IsResting(heliostat.axis2Servo))
+					{
+						heliostat.axis2Servo.WriteValue(RegisterType.GoalPosition
+							, rotPitch.pitch - deltaA2
+							, false);
+					}
                 }
                 catch (Exception ex)
                 {

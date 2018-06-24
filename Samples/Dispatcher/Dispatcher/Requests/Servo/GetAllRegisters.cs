@@ -15,6 +15,7 @@ namespace Dispatcher.Requests.Servo
 		public object Perform()
 		{
 			var servo = PortPool.X.FindServo(this.servo);
+			servo.ReadAll();
 			return servo.Registers;
 		}
 	}

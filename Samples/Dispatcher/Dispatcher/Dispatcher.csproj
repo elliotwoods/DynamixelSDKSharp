@@ -181,6 +181,7 @@
     <Compile Include="Requests\Servo\SetRegisterValue.cs" />
     <Compile Include="Requests\System\ShutdownAll.cs" />
     <Compile Include="Safety\Constraints.cs" />
+    <Compile Include="Safety\RestingServos.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="Utils\ExceptionMessage.cs" />
   </ItemGroup>

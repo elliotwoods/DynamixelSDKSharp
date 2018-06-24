@@ -1,5 +1,6 @@
 ﻿using DynamixelSDKSharp;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Dispatcher.Requests.System
@@ -12,20 +13,35 @@ namespace Dispatcher.Requests.System
 			var constraints = Safety.Constraints.X;
 			var servos = PortPool.X.Servos.Values;
 
+			var exceptions = new Dictionary<byte, Exception>();
+
 			foreach (var constraint in constraints)
 			{
 				foreach (var servo in servos)
 				{
-					//Check if constraint has been performed recently
-					if (constraint.NeedsPerform(servo))
+					if(Safety.ServoRestManager.X.IsResting(servo))
 					{
-						//If not, perform it now
-						constraint.Perform(servo);
+						//ignore whilst resting
+						continue;
+					}
+
+					try
+					{
+						//Check if constraint has been performed recently
+						if (constraint.NeedsPerform(servo))
+						{
+							//If not, perform it now
+							constraint.Perform(servo);
+						}
+					}
+					catch(Exception e)
+					{
+						exceptions.Add(servo.ID, e);
 					}
 				}
 			}
 
-			return new { };
+			return exceptions;
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace Dispatcher
 
 		public static void Log(Level level, string message, string moduleName)
 		{
-			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, message));
+			Console.WriteLine(String.Format("{0} in [{1}] :\n - {2}", level.ToString(), moduleName, message));
 
 			Database.Connection.X.Log(new Database.SystemLog
 			{
@@ -51,7 +51,7 @@ namespace Dispatcher
 
 		public static void Log(Level level, Exception e, string moduleName)
 		{
-			Console.WriteLine(String.Format("{0} in [{1}] : {2}", level.ToString(), moduleName, e.Message));
+			Console.WriteLine(String.Format("{0} in [{1}] :\n - {2}", level.ToString(), moduleName, e.Message));
 
 			Database.Connection.X.Log(new Database.SystemLog
 			{

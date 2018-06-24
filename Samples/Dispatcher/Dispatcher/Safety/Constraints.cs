@@ -51,7 +51,9 @@ namespace Dispatcher
 				ShutdownOne,
 				ShutdownAll,
 				ClampValue,
-				MiddleValue
+				MiddleValue,
+				TakeARest,
+				LimitCurrent
 			}
 
 			public RegisterType RegisterType { get; set; }
@@ -119,6 +121,25 @@ namespace Dispatcher
 							{
 								var middleValue = (this.MaxValue - this.MinValue) / 2 + this.MinValue;
 								servo.WriteValue(this.RegisterType, middleValue);
+							}
+							break;
+						case ActionType.TakeARest:
+							{
+								ServoRestManager.X.PutToRest(servo);
+							}
+							break;
+						case ActionType.LimitCurrent:
+							{
+								var torqueWasEnabled = servo.ReadValue(RegisterType.TorqueEnable);
+								var previousGoalPosition = servo.ReadValue(RegisterType.GoalPosition);
+
+								servo.WriteValue(RegisterType.TorqueEnable, 0);
+								{
+									servo.WriteValue(RegisterType.CurrentLimit, 100);
+								}
+
+								servo.WriteValue(RegisterType.TorqueEnable, torqueWasEnabled);
+								servo.WriteValue(RegisterType.GoalPosition, previousGoalPosition);
 							}
 							break;
 						default:
