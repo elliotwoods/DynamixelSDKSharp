@@ -1,19 +1,38 @@
 # DynamixelSDKSharp
-![Dynamixel motor image](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/dynamixel_x_04.png?raw=true)
+![Dynamixel motor image](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/.resources/dynamixel_x_04.png?raw=true)
 
-Simple to use object oriented .NET library for controlling Dynamixel actuator products from [Robotis](http://www.robotis.com/).
+## Introduction
+
+A .NET library for controlling Dynamixel actuator products from [Robotis](http://www.robotis.com/).
+
+This library's aims:
+
+* Easy to use
+* Managed and Object Oriented
+* Utilities for common use patterns with Dynamixel Servos
+* User's code should be the same regardless of which servo products are used
+
+The library code can be cross-platform, but it has only been tested on Windows.
+
+## Sample code
 
 ```C#
+// Open a COM port
 var port = new Port("COM6", BaudRate.BaudRate_115200);
+
+// Search for all servos on this port
 port.Refresh();
 
+// Iterate through servos
 foreach (var servoKeyValue in port.Servos)
 {
   var servoID = servoKeyValue.Key;
   var servo = servoKeyValue.Value;
 
+  // Enable torque on this servo
   servo.WriteValue(RegisterType.TorqueEnable, 1);
 
+  // Move through range of positions
   for (int i = 0; i < 4096; i += 5)
   {
     servo.WriteValue(RegisterType.GoalPosition, i);
@@ -22,11 +41,12 @@ foreach (var servoKeyValue in port.Servos)
 ```
 
 ## Features
+
 * Automatically detect Ports
 * Automatically detect Servos
 * Ports are threaded safely
-* Register address tables can be defined in JSON
-* Dispatcher sample application provides REST API (e.g. can control Servos from remote devices)
+* Register address tables can be defined in JSON (we don't need to hard-code address tables for each servo)
+* DynamixelREST sample application provides REST API (e.g. can control Servos from remote devices)
 
 ## Classes
 
@@ -34,14 +54,14 @@ foreach (var servoKeyValue in port.Servos)
 * Servo
 * Register
 
-## Dispatcher
+## DynamixelREST
 
-This is a standalone application which runs a server which allows you to manipulate all attached Dynamixel actuators on all ports.
+This is a standalone application which provides a REST API for manipulating Dynamixel actuator products. With this, it becomes easy to create applications in any language (e.g. JavaScript, Python, Processing, etc) which interact with the Dynamixel hardware.
 
-The dispatcher is controlled via REST commands. To see a full list of commands see here:
+To see a full list of REST commands see here:
 https://github.com/elliotwoods/DynamixelSDKSharp/tree/master/Samples/Dispatcher/Dispatcher/Requests
 
-Note that the addresses for each request are shown in the class decorators.
+Note that the addresses for each request are shown in the class decorators, or else denoted by the class name and namespace.
 
 Dispatcher also supports logging to a local MongoDB server if available. If you would like to disable this feature, then please remove this section from the Schedule.json file:
 
@@ -52,6 +72,12 @@ Dispatcher also supports logging to a local MongoDB server if available. If you 
 			"OnStart": "true"
 		},
 ```
+
+The scheduler defines regular tasks which you would like to perform:
+
+* `Period` defines an interval in seconds between each action. `0` signifies that the schedule is disabled (e.g. used with `OnStart`, this can mean that it only happens on start of application).
+* `Action` defines a REST endpoint which will be performed at each schedule interval
+* `OnStart` defines whether this endpoint will be performed at application start.
 
 ## License
 

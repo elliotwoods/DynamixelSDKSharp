@@ -1,0 +1,21 @@
+{
+	"Settings": {
+		"Sleep": 100
+	},
+	"Schedules": [
+		{
+			"Period": 0,
+			"Action": "System/InitDatabase",
+			"OnStart": "true"
+		},
+		{
+			"Period": 0.1,
+			"Action": "System/CheckSafetyConstraints"
+		},
+		{
+			"Period": 10,
+			"Action": "Data/Logger",
+			"OnStart": "true"
+		}
+	]
+}

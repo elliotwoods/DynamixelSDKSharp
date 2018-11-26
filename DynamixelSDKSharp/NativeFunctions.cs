@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 /* Author: Ryu Woon Jung (Leon) */
+/* Edits by Elliot Woods */
 
 using System;
 using System.Runtime.InteropServices;
@@ -23,13 +24,14 @@ namespace DynamixelSDKSharp
 {
 	public unsafe class NativeFunctions
 	{
+#region Constants
+// Note that simple DllImport only supports compile-time constants, and therefore cannot support AnyCpu targets since it must switch between import DLL's at IL-compile time which happens on the user's machine
 #if WIN32
 		const string dll_path = "dxl_x86_c.dll";
 #else
 		const string dll_path = "dxl_x64_c.dll";
 #endif
 
-		#region Constants
 		public const int COMM_SUCCESS = 0;
 		public const int COMM_TX_FAIL = -1001;
 		public const int MAX_ID = 252;
@@ -57,8 +59,8 @@ namespace DynamixelSDKSharp
 		public static extern int getBaudRate(int port_num);
 
 #if __linux__
-    [DllImport(dll_path)]
-    public static extern int    getBytesAvailable   (int port_num);
+		[DllImport(dll_path)]
+		public static extern int getBytesAvailable(int port_num);
 #endif
 
 		[DllImport(dll_path)]
@@ -78,12 +80,9 @@ namespace DynamixelSDKSharp
 		[DllImport(dll_path)]
 		public static extern void packetHandler();
 
-		[DllImport(dll_path)]
-		public static extern void printTxRxResult(int protocol_version, int result);
+
 		[DllImport(dll_path)]
 		public static extern IntPtr getTxRxResult(int protocol_version, int result);
-		[DllImport(dll_path)]
-		public static extern void printRxPacketError(int protocol_version, byte error);
 		[DllImport(dll_path)]
 		public static extern IntPtr getRxPacketError(int protocol_version, byte error);
 
