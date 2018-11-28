@@ -21,7 +21,12 @@
     
   </metadata>
   <files>
-    <file src="lib\**\*.*" target="lib" />
+    <file src="lib-native\x64\*.*" target="lib-native\x64" />
+    <file src="ProductDatabase\*.*" target="content\ProductDatabase" />
+
+    <!-- This is for platforms which don't support the .targets file, e.g. VL -->
+    <file src="ProductDatabase\*.*" target="lib\net45\ProductDatabase" />
+    
     <file src="build\DynamixelSDKSharp.targets" target="build" />
   </files>
 </package>

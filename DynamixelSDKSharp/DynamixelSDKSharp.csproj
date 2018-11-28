@@ -81,12 +81,6 @@
     <Compile Include="WorkerThread.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\net45\dxl_x64_c.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\net45\dxl_x86_c.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="ProductDatabase\Products.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
