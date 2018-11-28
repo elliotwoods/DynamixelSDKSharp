@@ -81,15 +81,20 @@
     <Compile Include="WorkerThread.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NativeDLLs\dxl_x64_c.dll">
+    <Content Include="lib\net45\dxl_x64_c.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="NativeDLLs\dxl_x86_c.dll">
+    <Content Include="lib\net45\dxl_x86_c.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ProductDatabase\Products.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="build\DynamixelSDKSharp.targets" />
+    <None Include="DynamixelSDKSharp.nuspec">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="nuget_pack.bat" />
     <None Include="packages.config" />
     <None Include="ProductDatabase\MX-64_2.0.csv" />
     <Content Include="ProductDatabase\MX-64_2.0.json">

@@ -183,12 +183,6 @@
     <None Include="Safety\Constraints.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="dxl_x64_c.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="dxl_x86_c.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="network.ico" />
     <Content Include="network_w.ico" />
     <Content Include="Schedule.json">
