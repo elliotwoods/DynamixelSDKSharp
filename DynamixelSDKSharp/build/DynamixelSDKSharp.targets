@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> 
-  <Target Name="CopyNativeDLLs" AfterTargets="AfterBuild"> 
+  <Target Name="CopyNativeDLLs" BeforeTargets="AfterBuild"> 
     <ItemGroup>
       <NativeDLLs Include="$(MSBuildThisFileDirectory)..\lib-native\x64\*.*"/>
       <ProductDatabase Include="$(MSBuildThisFileDirectory)..\content\ProductDatabase\*.*"/> 
