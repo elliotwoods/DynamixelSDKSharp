@@ -21,14 +21,14 @@ foreach (var servoKeyValue in port.Servos)
 }
 ```
 
-## Features
+# Features
 * Automatically detect Ports
 * Automatically detect Servos
 * Ports are threaded safely
 * Register address tables can be defined in JSON
 * Dispatcher sample application provides REST API (e.g. can control Servos from remote devices)
 
-## Classes
+# # Classes
 
 * Port
 * Servo
@@ -53,7 +53,29 @@ Dispatcher also supports logging to a local MongoDB server if available. If you 
 		},
 ```
 
-## License
+# Troubleshooting
+
+## Missing DLL
+
+Error looks like:
+
+```
+Couldn't open serial port: Unable to load DLL 'dxl_x86_c.dll': The specified module could not be found. (Exception from
+HRESULT: 0x8007007E)
+```
+
+This DLL needs to be found by your exe. Generally first try switching the target from "Any CPU" to "x64" in the Visual Studio toolbar.
+
+## NewtonSoft not found
+
+Sometimes you might get build errors that NewtonSoft is not found. Try:
+
+* Right click on your solution
+* Select `Restore NuGet Packages`
+
+If that does not work, then try removing the reference from the DynamixelSDKSharp project and adding it again from NuGet.
+
+# License
 
 DynamixelSDKSharp is by Kimchi and Chips and is available under the [MIT License](https://github.com/elliotwoods/DynamixelSDKSharp/blob/master/LICENSE)
 NativeFunctions.cs and the native DLL's are from the DynamixelSDK by Robotis, made available under the [Apache License 2.0](https://github.com/ROBOTIS-GIT/DynamixelSDK/blob/master/LICENSE)
