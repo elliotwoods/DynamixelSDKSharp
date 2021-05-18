@@ -78,8 +78,8 @@
     <Reference Include="Nancy.Hosting.Self, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.Hosting.Self.2.0.0-clinteastwood\lib\net452\Nancy.Hosting.Self.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Sharp3D.Math, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Sharp3D.Math.1.0.3\lib\net45\Sharp3D.Math.dll</HintPath>
@@ -147,6 +147,7 @@
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\Servo\MultiMove.cs" />
     <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
