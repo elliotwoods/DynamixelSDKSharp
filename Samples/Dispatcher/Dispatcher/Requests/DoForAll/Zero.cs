@@ -9,7 +9,7 @@ namespace Dispatcher.Requests.Test
 {
 	[RequestHandler(Method = Method.GET | Method.POST, ThreadUsage = ThreadUsage.Exclusive)]
 	[Serializable]
-	class ZeroAllServos : IDoForAllServos
+	class Zero : IDoForAll
 	{
 		public bool useMidvalue = true;
 

@@ -8,7 +8,7 @@ using System.Threading;
 namespace Dispatcher.Requests.Test
 {
 	[Serializable]
-	abstract class IDoForAllServos : IRequest
+	abstract class IDoForAll : IRequest
 	{
 		public bool voiceEnabled { get; set; } = true;
 		public float timeout { get; set; } = 20;
@@ -160,7 +160,7 @@ namespace Dispatcher.Requests.Test
 					catch (Exception e)
 					{
 						//log fail
-						Logger.Log<NudgeAllServos>(Logger.Level.Error, e);
+						Logger.Log<Nudge>(Logger.Level.Error, e);
 
 						//speak fail
 						if(this.voiceEnabled)

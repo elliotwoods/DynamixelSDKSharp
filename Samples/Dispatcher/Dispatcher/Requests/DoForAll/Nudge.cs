@@ -9,7 +9,7 @@ namespace Dispatcher.Requests.Test
 {
 	[RequestHandler(Method = Method.GET | Method.POST, ThreadUsage = ThreadUsage.Exclusive)]
 	[Serializable]
-	class NudgeAllServos : IDoForAllServos
+	class Nudge : IDoForAll
 	{
 		public int amountDegrees { get; set; } = 45;
 
