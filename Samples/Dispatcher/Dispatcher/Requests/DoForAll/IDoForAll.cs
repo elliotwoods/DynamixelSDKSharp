@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Speech.Synthesis;
 using System.Threading;
 
-namespace Dispatcher.Requests.Test
+namespace Dispatcher.Requests.DoForAll
 {
 	[Serializable]
 	abstract class IDoForAll : IRequest

@@ -153,8 +153,8 @@
     <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
-    <Compile Include="Requests\DoForAll\IDoForAllServos.cs" />
-    <Compile Include="Requests\DoForAll\ZeroAllServos.cs" />
+    <Compile Include="Requests\DoForAll\IDoForAll.cs" />
+    <Compile Include="Requests\DoForAll\Zero.cs" />
     <Compile Include="Requests\System\GetServoIDs.cs" />
     <Compile Include="Requests\System\InitDatabase.cs" />
     <Compile Include="Requests\Servo\GetAllRegisters.cs" />
@@ -167,7 +167,7 @@
     <Compile Include="Requests\IRequest.cs" />
     <Compile Include="Requests\System\LogAllServoRegisters.cs" />
     <Compile Include="Requests\Servo\Move.cs" />
-    <Compile Include="Requests\DoForAll\NudgeAllServos.cs" />
+    <Compile Include="Requests\DoForAll\Nudge.cs" />
     <Compile Include="Requests\System\Refresh.cs" />
     <Compile Include="Requests\Servo\SetRegister.cs" />
     <Compile Include="Requests\Servo\SetRegisterValue.cs" />

@@ -22,7 +22,7 @@ namespace Dispatcher.Requests.Servo
 			{
 				var servo = PortPool.X.FindServo(servoValue.Key);
 				servo.WriteValue(this.registerType
-					, servoValue.Key
+					, servoValue.Value
 					, this.synchronous);
 			}
 
