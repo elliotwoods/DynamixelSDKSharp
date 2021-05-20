@@ -4,12 +4,7 @@
 	},
 	"Schedules": [
 		{
-			"Period": 0,
-			"Action": "System/InitDatabase",
-			"OnStart": "true"
-		},
-		{
-			"Period": 0.1,
+			"Period": 1,
 			"Action": "System/CheckSafetyConstraints"
 		},
 		{
@@ -22,10 +17,5 @@
 			"Action": "Heliostat/Refresh",
 			"OnStart": "true"
 		},
-		{
-			"Period": 1,
-			"Action": "Data/Logger",
-			"OnStart": "true"
-		}
 	]
 }

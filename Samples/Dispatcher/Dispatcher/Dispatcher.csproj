@@ -147,12 +147,15 @@
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\Servo\MultiGet.cs" />
     <Compile Include="Requests\Servo\MultiMove.cs" />
+    <Compile Include="Requests\Servo\MultiSet.cs" />
     <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
-    <Compile Include="Requests\Test\IDoForAllServos.cs" />
-    <Compile Include="Requests\Test\ZeroAllServos.cs" />
+    <Compile Include="Requests\DoForAll\IDoForAllServos.cs" />
+    <Compile Include="Requests\DoForAll\ZeroAllServos.cs" />
+    <Compile Include="Requests\System\GetServoIDs.cs" />
     <Compile Include="Requests\System\InitDatabase.cs" />
     <Compile Include="Requests\Servo\GetAllRegisters.cs" />
     <Compile Include="Requests\System\GetPorts.cs" />
@@ -164,7 +167,7 @@
     <Compile Include="Requests\IRequest.cs" />
     <Compile Include="Requests\System\LogAllServoRegisters.cs" />
     <Compile Include="Requests\Servo\Move.cs" />
-    <Compile Include="Requests\Test\NudgeAllServos.cs" />
+    <Compile Include="Requests\DoForAll\NudgeAllServos.cs" />
     <Compile Include="Requests\System\Refresh.cs" />
     <Compile Include="Requests\Servo\SetRegister.cs" />
     <Compile Include="Requests\Servo\SetRegisterValue.cs" />

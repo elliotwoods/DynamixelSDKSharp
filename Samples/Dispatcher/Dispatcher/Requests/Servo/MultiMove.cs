@@ -9,7 +9,7 @@ namespace Dispatcher.Requests.Servo
 {
 	[RequestHandler(Method = Method.POST)]
 	[Serializable]
-	[DebuggerDisplay("servo = {servo}, register = {register.RegisterType}, value = {register.Value}")]
+	[DebuggerDisplay("movements = [{movements.Length}], waitUntilComplete = {waitUntilComplete}")]
 	class MultiMove : IRequest
 	{
 		public class Movement
