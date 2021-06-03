@@ -128,6 +128,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\API.cs" />
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
+    <Compile Include="Requests\Calibrate\SetLimits.cs" />
+    <Compile Include="Requests\Calibrate\SetLimitSize.cs" />
     <Compile Include="Requests\Data\GetFreshestValues.cs" />
     <Compile Include="Requests\Data\GetHistoricalValues.cs" />
     <Compile Include="Requests\Data\LogServos.cs" />
