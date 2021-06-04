@@ -14,17 +14,24 @@ namespace Dispatcher.Requests.Servo
 	{
 		public Dictionary<int, int> servoValues;
 		public RegisterType registerType;
-		public bool synchronous = false;
 
 		public object Perform()
 		{
+			var writeRequests = new List<WriteAsyncRequest>();
+
 			foreach (var servoValue in this.servoValues)
 			{
 				var servo = PortPool.X.FindServo(servoValue.Key);
-				servo.WriteValue(this.registerType
-					, servoValue.Value
-					, this.synchronous);
+				servo.Registers[registerType].Value = servoValue.Value;
+
+				writeRequests.Add(new WriteAsyncRequest
+				{
+					servo = servo
+					, registerType = registerType
+				});
 			}
+
+			PortPool.X.WriteAsync(writeRequests);
 
 			return new { };
 		}

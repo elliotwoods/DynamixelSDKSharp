@@ -328,7 +328,7 @@ namespace DynamixelSDKSharp
 	public class Register : ICloneable
 	{
 		public UInt16 Address { get; set; }
-		public int Size { get; set; }
+		public ushort Size { get; set; }
 		[JsonProperty(PropertyName = "Data Name")]
 		public string DataName { get; set; }
 		public string Description { get; set; }

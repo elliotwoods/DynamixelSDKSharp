@@ -33,9 +33,9 @@ namespace Dispatcher.Requests.Calibrate
 
 				var servo = servos[limit.Key];
 				
-				servo.WriteValue(RegisterType.TorqueEnable, 0, true);
-				servo.WriteValue(RegisterType.MinPositionLimit, limit.Value.min, true);
-				servo.WriteValue(RegisterType.MaxPositionLimit, limit.Value.max, true);
+				servo.WriteValue(RegisterType.TorqueEnable, 0);
+				servo.WriteValue(RegisterType.MinPositionLimit, limit.Value.min);
+				servo.WriteValue(RegisterType.MaxPositionLimit, limit.Value.max);
 			}
 
 			return new { };

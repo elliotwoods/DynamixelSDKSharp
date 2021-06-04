@@ -144,10 +144,15 @@ namespace Dispatcher.Requests.Data
 
 						if (this.UseGroupSyncRead)
 						{
+							var results = portIterator.Value.ReadGroup(port.Servos.Values, registerType);
+							var formattedResults = new Dictionary<byte, int>();
+							var servoIDs = port.Servos.Keys.ToList();
+							for(int i=0; i<results.Count; i++)
+							{
+								formattedResults.Add(servoIDs[i], results[i]);
+							}
 							recordedValues.Add(registerType
-								, portIterator.Value.GroupSyncRead(listOfServosToLog
-									, registerInfo.Address
-									, registerInfo.Size));
+								, formattedResults);
 						}
 						else
 						{

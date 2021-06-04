@@ -127,6 +127,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\API.cs" />
+    <Compile Include="Requests\Heliostat\CalibrateLimits.cs" />
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
     <Compile Include="Requests\Calibrate\SetLimits.cs" />
     <Compile Include="Requests\Calibrate\SetLimitSize.cs" />
@@ -139,7 +140,6 @@
     <Compile Include="Requests\Group\Goto.cs" />
     <Compile Include="Requests\Data\LogRegisterAllServos.cs" />
     <Compile Include="Requests\Group\MoveAndLogAll.cs" />
-    <Compile Include="Requests\Heliostat\Calibrate.cs" />
     <Compile Include="Requests\Heliostat\NagivatePointToPoint.cs" />
     <Compile Include="Requests\Heliostat\NavigateHeliostatsPointToPoint.cs" />
     <Compile Include="Requests\Heliostat\NavigateToSolar.cs" />

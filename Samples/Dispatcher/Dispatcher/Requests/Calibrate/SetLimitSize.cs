@@ -78,9 +78,9 @@ namespace Dispatcher.Requests.Calibrate
 					newMax = servo.Value.ProductSpecification.EncoderResolution - 1;
 				}
 
-				servo.Value.WriteValue(RegisterType.TorqueEnable, 0, true);
-				servo.Value.WriteValue(RegisterType.MinPositionLimit, newMin, true);
-				servo.Value.WriteValue(RegisterType.MaxPositionLimit, newMax, true);
+				servo.Value.WriteValue(RegisterType.TorqueEnable, 0);
+				servo.Value.WriteValue(RegisterType.MinPositionLimit, newMin);
+				servo.Value.WriteValue(RegisterType.MaxPositionLimit, newMax);
 
 				var report = new Report();
 				{

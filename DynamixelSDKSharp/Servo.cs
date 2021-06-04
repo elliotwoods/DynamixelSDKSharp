@@ -37,51 +37,43 @@ namespace DynamixelSDKSharp
 
 		public void WriteAll()
 		{
-			foreach (var iterator in this.Registers)
-			{
-				this.Port.Write(this.ID, iterator.Value);
-			}
+			this.WriteRegisters(this.Registers, false);
 		}
 
-		public void WriteValue(Register newValue, bool sync = false)
+		public void WriteValue(Register newValue)
 		{
-			this.WriteValue(newValue.RegisterType, newValue.Value, sync);
+			this.WriteValue(newValue.RegisterType, newValue.Value);
+		}
+
+		public void WriteValue(RegisterType registerType, int value)
+		{
+			var register = this.Registers[registerType];
+			register.Value = value;
+			this.Port.WriteSync(this.ID, register);
 		}
 
 		public void WriteRegisters(Registers registers, bool sync = false)
 		{
-			var registersToWrite = new Registers();
-			foreach(var register in registers)
+			if(sync)
 			{
-				//update our local register
-				var ourRegister = this.Registers[register.Key];
-				ourRegister.Value = register.Value.Value;
-
-				//use our register for the write operations
-				registersToWrite.Add(register.Key, ourRegister);
-			}
-
-			if (sync)
-			{
-				this.Port.Write(this.ID, registersToWrite);
+				foreach(var iterator in registers)
+				{
+					this.Port.WriteSync(this.ID, iterator.Value);
+				}
 			}
 			else
 			{
-				this.Port.WriteAsync(this.ID, registersToWrite);
-			}
-		}
-
-		public void WriteValue(RegisterType registerType, int value, bool sync = false)
-		{
-			var register = this.Registers[registerType];
-			register.Value = value;
-			if (sync)
-			{
-				this.Port.Write(this.ID, register);
-			}
-			else
-			{
-				this.Port.WriteAsync(this.ID, register);
+				var writeAsyncRequests = new List<WriteAsyncRequest>();
+				foreach (var iterator in registers)
+				{
+					var writeAsyncRequest = new WriteAsyncRequest
+					{
+						servo = this,
+						registerType = iterator.Key
+					};
+					writeAsyncRequests.Add(writeAsyncRequest);
+				}
+				this.Port.WriteAsync(writeAsyncRequests);
 			}
 		}
 
