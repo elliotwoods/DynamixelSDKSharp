@@ -3,14 +3,14 @@
 		"PortName": "Test Cable",
 		"PortAddress": "COM9",
 		"Baud": 115200,
-		"Enabled": true
+		"Enabled": false
 	},
 
 	{
 		"PortName": "North A",
 		"PortAddress": "COM11",
 		"Baud": 115200,
-		"Enabled": false
+		"Enabled": true
 	},
 	{
 		"PortName": "North B",

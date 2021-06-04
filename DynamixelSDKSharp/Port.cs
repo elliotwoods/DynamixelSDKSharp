@@ -132,11 +132,13 @@ namespace DynamixelSDKSharp
 					}
 					catch(Exception e)
 					{
+						Console.WriteLine(String.Format("Rebooting ({0}) on ({1})", servoID, this.Name));
+
 						this.Reboot(servoID);
-						Thread.Sleep(1000);
+						Thread.Sleep(3000);
 					}
 
-					var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int) this.ProtocolVersion, servoID);
+					var modelNumber = this.Read(servoID, 0, 2);
 					var servo = new Servo(this, servoID, modelNumber);
 					this.FServos.Add(servoID, servo);
 				}
@@ -188,14 +190,14 @@ namespace DynamixelSDKSharp
 				}
 			}
 
-			{
-				var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
-				if (error != 0)
-				{
-					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-					throw (new Exception("getLastRxPacketError : " + errorMessage));
-				}
-			}
+			//{
+			//	var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
+			//	if (error != 0)
+			//	{
+			//		var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
+			//		throw (new Exception("getLastRxPacketError : " + errorMessage));
+			//	}
+			//}
 		}
 
 		public void WriteSync(byte id, Register register)

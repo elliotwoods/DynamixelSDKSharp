@@ -21,7 +21,6 @@ namespace DynamixelSDKSharp
 			this.ProductSpecification = ProductDatabase.X.GetProductSpecification(modelNumber);
 
 			this.Registers = (Registers)this.ProductSpecification.Registers.Clone();
-			this.ReadAll();
 		}
 		
 		[JsonIgnore]
