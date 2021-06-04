@@ -89,5 +89,10 @@ namespace DynamixelSDKSharp
 			var register = this.ReadRegister(registerType);
 			return register.Value;
 		}
+
+		public void Reboot()
+		{
+			this.Port.Reboot(this.ID);
+		}
 	}
 }

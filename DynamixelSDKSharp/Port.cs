@@ -136,7 +136,7 @@ namespace DynamixelSDKSharp
 						Thread.Sleep(1000);
 					}
 
-					var modelNumber = this.Read(servoID, 0, 2);
+					var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int) this.ProtocolVersion, servoID);
 					var servo = new Servo(this, servoID, modelNumber);
 					this.FServos.Add(servoID, servo);
 				}
@@ -253,7 +253,7 @@ namespace DynamixelSDKSharp
 					, servo.ID
 					, (UInt32) servo.Registers[registerType].Value
 					, registerSize);
-				if(result)
+				if(!result)
 				{
 					throw (new Exception("groupSyncWriteAddParam failed"));
 				}
@@ -269,35 +269,85 @@ namespace DynamixelSDKSharp
 			NativeFunctions.groupSyncWriteClearParam(groupNum);
 		}
 
-		public void WriteAsync(IEnumerable<WriteAsyncRequest> writeAsyncRequests)
+		class WriteAsyncBlock
+		{
+			public class Entry
+			{
+				public int Value;
+				public ushort Size;
+			}
+
+			public byte servoID;
+			public ushort StartAddress;
+			public List<Entry> Entries = new List<Entry>();
+
+			public ushort CurrentAddress
+			{
+				get
+				{
+					return (ushort)(this.StartAddress + this.DataLength);
+				}
+			}
+
+			public ushort DataLength
+			{
+				get
+				{
+					ushort length = 0;
+					foreach (var entry in this.Entries)
+					{
+						length += entry.Size;
+					}
+					return length;
+				}
+			}
+		}
+
+		void WriteAsync(IEnumerable<WriteAsyncBlock> writeAsyncBlocks)
 		{
 			this.ThrowIfNotOpen();
 
 			// Initialise the group write
 			var groupNum = NativeFunctions.groupBulkWrite(this.FPortNumber
-				, (int) this.ProtocolVersion);
+				, (int)this.ProtocolVersion);
 
-			// Populate the request
-			foreach(var writeAsyncRequest in writeAsyncRequests)
+
+			foreach(var block in writeAsyncBlocks)
 			{
-				var servo = writeAsyncRequest.servo;
-
-				// Check this servo is on this port
-				if(!this.Servos.ContainsKey(servo.ID))
+				// Add the first entry in the block
 				{
-					throw (new Exception(String.Format("WriteAsync : Servo ({0}) not found on this port", servo.ID)));
+					var result = NativeFunctions.groupBulkWriteAddParam(groupNum
+					, block.servoID
+					, block.StartAddress
+					, block.DataLength
+					, (UInt32)block.Entries[0].Value
+					, block.Entries[0].Size);
+					if (!result)
+					{
+						throw (new Exception("Failed to write first block in groupBulkWriteAddParam"));
+					}
 				}
 
-				var register = writeAsyncRequest.servo.Registers[writeAsyncRequest.registerType];
-				var result = NativeFunctions.groupBulkWriteAddParam(groupNum
-					, writeAsyncRequest.servo.ID
-					, register.Address
-					, (ushort) register.Size
-					, (UInt32) register.Value
-					, (ushort) register.Size);
-				if(result)
+				var position = block.Entries[0].Size;
+
+				// Add the remaining entries
+				for(int i=1; i<block.Entries.Count; i++)
 				{
-					throw (new Exception("groupBulkWriteAddParam failed"));
+					{
+						var result = NativeFunctions.groupBulkWriteChangeParam(groupNum
+						, block.servoID
+						, block.StartAddress
+						, block.DataLength
+						, (UInt32)block.Entries[i].Value
+						, block.Entries[i].Size
+						, (ushort)position);
+
+						if (!result)
+						{
+							throw (new Exception(String.Format("Failed to write ({0}) block in groupBulkWriteChangeParam", position)));
+						}
+					}
+					position += block.Entries[i].Size;
 				}
 			}
 
@@ -309,6 +359,87 @@ namespace DynamixelSDKSharp
 
 			// Clear the parameter storage
 			NativeFunctions.groupBulkWriteClearParam(groupNum);
+		}
+
+		public void WriteAsync(IEnumerable<WriteAsyncRequest> writeAsyncRequests)
+		{
+			var sortedRequests = writeAsyncRequests.ToList();
+			sortedRequests.Sort((request1, request2) =>
+				request1.Address.CompareTo(request2.Address));
+
+			var blocksForAllServos = new Dictionary<byte, List<WriteAsyncBlock>>();
+
+			// Gather request blocks for each servo
+			foreach(var request in sortedRequests)
+			{
+				// Make list of blocks for this servo if none allocated
+				if(!blocksForAllServos.ContainsKey(request.servo.ID))
+				{
+					blocksForAllServos.Add(request.servo.ID, new List<WriteAsyncBlock>());
+				}
+
+				var blocks = blocksForAllServos[request.servo.ID];
+
+				// Check if we can add this address to any existing block
+				bool foundBlock = false;
+				foreach (var block in blocks)
+				{
+					if(block.CurrentAddress == request.Address)
+					{
+						block.Entries.Add(new WriteAsyncBlock.Entry
+						{
+							Value = request.Value
+							, Size = request.Size
+						});
+						foundBlock = true;
+						break;
+					}
+				}
+
+				// Make a new block if one not already matching
+				if(!foundBlock)
+				{
+					var block = new WriteAsyncBlock();
+					block.servoID = request.servo.ID;
+					block.StartAddress = request.Address;
+					block.Entries.Add(new WriteAsyncBlock.Entry
+					{
+						Value = request.Value
+						, Size = request.Size
+					});
+					blocks.Add(block);
+				}
+			}
+
+			// Execute the request blocks
+			// We must gather sets of blocks that contain each servo no more than once
+			while(blocksForAllServos.Count != 0)
+			{
+				// Gather a set of blocks for different servos
+				var blocks = new List<WriteAsyncBlock>();
+
+				var blockSet = new List<WriteAsyncBlock>();
+
+				// Take the last entry for each servo
+				foreach(var iterator in blocksForAllServos)
+				{
+					blockSet.Add(iterator.Value[iterator.Value.Count - 1]);
+				}
+
+				// Execute the block set
+				this.WriteAsync(blockSet);
+
+				// Remove last entry from each blockSet
+				foreach(var iterator in blocksForAllServos)
+				{
+					iterator.Value.RemoveAt(iterator.Value.Count - 1);
+				}
+
+				// Strip empty sets (rebuild dictionary)
+				blocksForAllServos = blocksForAllServos.Where(pair => pair.Value.Count > 0)
+								 .ToDictionary(pair => pair.Key,
+											   pair => pair.Value);
+			}
 		}
 
 		public void Read(byte id, Register register)
