@@ -57,6 +57,7 @@ namespace DynamixelSDKSharp
 		{
 			this.Name = portAddress;
 			this.Address = portAddress;
+			this.BaudRate = baudRate;
 
 			try
 			{
@@ -67,7 +68,7 @@ namespace DynamixelSDKSharp
 				NativeFunctions.packetHandler();
 
 				//Note that we don't call NativeFunctions.openPort() here because setting the baud rate achieves the same thing in the Dynamixel SDK.
-				NativeFunctions.setBaudRate(this.FPortNumber, (int)baudRate);
+				//NativeFunctions.setBaudRate(this.FPortNumber, (int)baudRate);
 
 				this.IsOpen = true;
 			}
@@ -79,21 +80,14 @@ namespace DynamixelSDKSharp
 			}
 		}
 
-		public BaudRate BaudRate
-		{
-			get
-			{
-				this.ThrowIfNotOpen();
-				return (BaudRate) NativeFunctions.getBaudRate(this.FPortNumber);
-			}
+		public BaudRate BaudRate { get; set; } = BaudRate.BaudRate_57600;
 
-			set
+		public void Open()
+		{
+			// This causes an open
+			if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)this.BaudRate)))
 			{
-				this.ThrowIfNotOpen();
-				if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)value)))
-				{
-					throw (new Exception("Failed to set baud rate"));
-				}
+				throw (new Exception("Failed to set baud rate"));
 			}
 		}
 
@@ -661,7 +655,7 @@ namespace DynamixelSDKSharp
 			{
 				if(this.IsOpen)
 				{
-					NativeFunctions.closePort(this.FPortNumber);
+					this.Close();
 				}
 
 				disposedValue = true;

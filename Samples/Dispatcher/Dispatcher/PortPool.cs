@@ -59,15 +59,30 @@ namespace Dispatcher
                         var port = new Port(p.PortAddress, (BaudRate)p.Baud);
 						port.Name = p.PortName;
 
-                        Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", p.PortAddress, port.IsOpen));
 
                         this.Ports.Add(p.PortAddress, port);
                     } else
 					{
-						Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Couldn't find port {0} ({1}) on system.", p.PortAddress, p.PortName));
+						Logger.Log<PortPool>(Logger.Level.Trace
+							, String.Format("Couldn't open port {0} ({1}).", p.PortAddress, p.PortName));
 					}
                 }
             }
+
+			//Open the ports
+			foreach(var iterator in this.Ports)
+			{
+				try
+				{
+					iterator.Value.Open();
+					Logger.Log<PortPool>(Logger.Level.Trace, String.Format("Connected to port : {0} (IsOpen = {1})", iterator.Key, iterator.Value.IsOpen));
+				}
+				catch (Exception e)
+				{
+					Logger.Log<PortPool>(Logger.Level.Trace
+							, String.Format("Couldn't open port {0} ({1}).", iterator.Value.Name, iterator.Value.Address));
+				}
+			}
 
 			//check if any ports have become closed
 			{
@@ -96,17 +111,14 @@ namespace Dispatcher
 					}
 					catch(Exception e)
 					{
-						Logger.Log(Logger.Level.Error
-							, "Failed to find any servos"
-							, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
-						Logger.Log(Logger.Level.Error
-							, e
-							, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
+						Logger.Log<PortPool>(Logger.Level.Error
+							, String.Format("Failed to refresh servos on ", port.Name));
+						Logger.Log<PortPool>(Logger.Level.Error
+							, e);
 					}
 
-					Logger.Log(Logger.Level.Trace
-						, String.Format("Found {0} servos on port {1} : {2}", port.Servos.Count, port.Name, String.Join(", ", port.Servos.Keys.Select(x => x.ToString())))
-						, "PortPool");
+					Logger.Log<PortPool>(Logger.Level.Trace
+						, String.Format("Found {0} servos on port {1} : {2}", port.Servos.Count, port.Name, String.Join(", ", port.Servos.Keys.Select(x => x.ToString()))));
 				}
 
 				foreach (var port in this.Ports.Values)
@@ -117,12 +129,11 @@ namespace Dispatcher
 					{
 						if(this.Servos.ContainsKey(portServo.Key))
 						{
-							Logger.Log(Logger.Level.Warning
-								, String.Format("2 servos have been found with the same ID ({0}) on ports {1} and {3}"
+							Logger.Log<PortPool>(Logger.Level.Warning
+								, String.Format("2 servos have been found with the same ID ({0}) on ports {1} and {2}"
 									, portServo.Key
 									, portServo.Value.Port.Name
-									, port.Name)
-								, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
+									, port.Name));
 						}
 						else
 						{
