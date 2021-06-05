@@ -62,7 +62,7 @@ namespace GroupReadWrite
 			{
 				// Group read temperature values
 				{
-					var temperatures = port.ReadGroup(servos, RegisterType.PresentTemperature);
+					var temperatures = port.ReadGroup(servos, RegisterType.PresentPosition);
 					for (int i = 0; i < temperatures.Count; i++)
 					{
 						Console.WriteLine("{0} : {1}", servos[i], temperatures[i]);
