@@ -43,6 +43,8 @@ namespace DynamixelSDKSharp
 
 		private Dictionary<byte, Servo> FServos = new Dictionary<byte, Servo>();
 
+		static int MaximumGroupRequests = 8;
+
 		private void ThrowIfNotOpen()
 		{
 			if (!this.IsOpen)
@@ -107,6 +109,13 @@ namespace DynamixelSDKSharp
 			}
 		}
 
+		private void AddServo(byte servoID)
+		{
+			var modelNumber = this.Read(servoID, 0, 2);
+			var servo = new Servo(this, servoID, modelNumber);
+			this.FServos.Add(servoID, servo);
+		}
+
 		public void Ping_HandleResults()
 		{
 			List<byte> foundServoIDs = new List<byte>();
@@ -116,6 +125,7 @@ namespace DynamixelSDKSharp
 			{
 				if (NativeFunctions.getBroadcastPingResult(this.FPortNumber, (int)this.ProtocolVersion, (int)id))
 				{
+					var modelNum = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, id);
 					foundServoIDs.Add(id);
 				}
 			}
@@ -128,7 +138,7 @@ namespace DynamixelSDKSharp
 					// Try reset if it's in hardware error state
 					try
 					{
-						var testRead = this.Read(servoID, 0, 2);
+						this.AddServo(servoID);
 					}
 					catch(Exception e)
 					{
@@ -136,11 +146,56 @@ namespace DynamixelSDKSharp
 
 						this.Reboot(servoID);
 						Thread.Sleep(3000);
-					}
 
-					var modelNumber = this.Read(servoID, 0, 2);
+						this.AddServo(servoID);
+					}
+				}
+			}
+
+			//remove any servos not seen any more
+			{
+				var toRemove = this.FServos.Where(pair => !foundServoIDs.Contains((byte)pair.Key))
+								.Select(pair => pair.Key)
+								.ToList();
+				foreach (var key in toRemove)
+				{
+					this.FServos.Remove(key);
+				}
+			}
+		}
+
+		public void Ping_ByModelNumber()
+		{
+			List<byte> foundServoIDs = new List<byte>();
+
+			//get ping results
+			for (byte servoID = 0; servoID < NativeFunctions.MAX_ID; servoID++)
+			{
+				var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, servoID);
+				if(modelNumber != 0)
+				{
 					var servo = new Servo(this, servoID, modelNumber);
 					this.FServos.Add(servoID, servo);
+					foundServoIDs.Add(servoID);
+				}
+			}
+
+			// Reboot any that are in hardware error state
+			{
+				bool needsReboot = false;
+				foreach(var iterator in this.Servos)
+				{
+					var servo = iterator.Value;
+					if(servo.ReadValue(RegisterType.HardwareErrorStatus) != 0)
+					{
+						servo.Reboot();
+						needsReboot = true;
+					}
+				}
+
+				if(needsReboot)
+				{
+					Thread.Sleep(3000);
 				}
 			}
 
@@ -307,6 +362,26 @@ namespace DynamixelSDKSharp
 
 		void WriteAsync(IEnumerable<WriteAsyncBlock> writeAsyncBlocks)
 		{
+			// We can only handle a max count in one request, so split it if needed
+			{
+				var writeAsyncBlocksList = writeAsyncBlocks.ToList();
+				if (writeAsyncBlocksList.Count > Port.MaximumGroupRequests)
+				{
+					var splitList = writeAsyncBlocksList
+						.Select((x, i) => new { Index = i, Value = x })
+						.GroupBy(x => x.Index / Port.MaximumGroupRequests)
+						.Select(x => x.Select(v => v.Value).ToList())
+						.ToList();
+
+					foreach (var subList in splitList)
+					{
+						this.WriteAsync(subList);
+					}
+
+					return;
+				}
+			}
+
 			this.ThrowIfNotOpen();
 
 			// Initialise the group write
@@ -490,6 +565,27 @@ namespace DynamixelSDKSharp
 
 		public List<int> ReadGroup(IEnumerable<Servo> servos, RegisterType registerType)
 		{
+			// We can only handle a max count in one request, so split it
+			{
+				var servosList = servos.ToList();
+				if (servosList.Count > Port.MaximumGroupRequests)
+				{
+					var splitList = servos
+						.Select((x, i) => new { Index = i, Value = x })
+						.GroupBy(x => x.Index / Port.MaximumGroupRequests)
+						.Select(x => x.Select(v => v.Value).ToList())
+						.ToList();
+
+					var resultsFromSplit = new List<int>();
+					foreach(var subList in splitList)
+					{
+						var subResults = this.ReadGroup(subList, registerType);
+						resultsFromSplit = resultsFromSplit.Concat(subResults).ToList();
+					}
+					return resultsFromSplit;
+				}
+			}
+
 			this.ThrowIfNotOpen();
 
 			// Initialise the group write
@@ -504,7 +600,7 @@ namespace DynamixelSDKSharp
 					, servo.ID
 					, register.Address
 					, (ushort) register.Size);
-				if (result)
+				if (!result)
 				{
 					throw (new Exception("groupBulkReadAddParam failed"));
 				}
