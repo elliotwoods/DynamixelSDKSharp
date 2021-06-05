@@ -15,6 +15,8 @@ namespace Dispatcher.Requests.DoForAll
 		Registers registers { get; set; } = null;
 		public int accuracy { get; set; } = 10;
 
+		public List<int> servoIDs { get; set; } = new List<int>();
+
 		protected abstract void Perform(DynamixelSDKSharp.Servo servo, Action<int> goToPosition, int startPosition);
 
 		public object Perform()
@@ -37,7 +39,20 @@ namespace Dispatcher.Requests.DoForAll
 					}
 				};
 
-				var servos = PortPool.X.Servos;
+				IDictionary<int, DynamixelSDKSharp.Servo> servos;
+				if(servoIDs == null || servoIDs.Count == 0)
+				{
+					servos = PortPool.X.Servos;
+				}
+				else
+				{
+					servos = new Dictionary<int, DynamixelSDKSharp.Servo>();
+					foreach(var servoID in servoIDs)
+					{
+						servos.Add(servoID, PortPool.X.FindServo(servoID));
+					}
+				}
+
 				foreach (var servoKeyValue in servos)
 				{
 					try

@@ -103,6 +103,10 @@ namespace Dispatcher
 							, e
 							, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
 					}
+
+					Logger.Log(Logger.Level.Trace
+						, String.Format("Found {0} servos on port {1} : {2}", port.Servos.Count, port.Name, String.Join(", ", port.Servos.Keys.Select(x => x.ToString())))
+						, "PortPool");
 				}
 
 				foreach (var port in this.Ports.Values)
@@ -114,7 +118,7 @@ namespace Dispatcher
 						if(this.Servos.ContainsKey(portServo.Key))
 						{
 							Logger.Log(Logger.Level.Warning
-								, String.Format("2 servo have been found with the same ID ({0}) on ports {1} and {2}"
+								, String.Format("2 servos have been found with the same ID ({0}) on ports {1} and {3}"
 									, portServo.Key
 									, portServo.Value.Port.Name
 									, port.Name)
@@ -126,11 +130,6 @@ namespace Dispatcher
 							servosFound.Add(portServo.Key);
 						}
 					}
-
-					var servosFoundStringList = servosFound.Select(x => x.ToString()).ToList();
-					Logger.Log(Logger.Level.Trace
-						, String.Format("Found servos: {0}", String.Join(", ", servosFoundStringList))
-						, String.Format("PortPool : {0} ({1})", port.Name, port.Address));
 				}
 			}
 
