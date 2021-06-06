@@ -165,13 +165,21 @@ namespace DynamixelSDKSharp
 			//get ping results
 			for (byte servoID = 0; servoID < NativeFunctions.MAX_ID; servoID++)
 			{
-				var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, servoID);
-				if(modelNumber != 0)
+				try
 				{
-					var servo = new Servo(this, servoID, modelNumber);
-					this.FServos.Add(servoID, servo);
-					foundServoIDs.Add(servoID);
+					var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, servoID);
+					if (modelNumber != 0)
+					{
+						var servo = new Servo(this, servoID, modelNumber);
+						this.FServos.Add(servoID, servo);
+						foundServoIDs.Add(servoID);
+					}
 				}
+				catch(Exception e)
+				{
+					Console.WriteLine(e.Message);
+				}
+				
 			}
 
 			// Reboot any that are in hardware error state
@@ -207,8 +215,12 @@ namespace DynamixelSDKSharp
 
 		public void Refresh()
 		{
-			this.Ping_Submit();
-			this.Ping_HandleResults();
+			this.Servos.Clear();
+
+			this.Ping_ByModelNumber();
+
+			//this.Ping_Submit();
+			//this.Ping_HandleResults();
 		}
 
 		[JsonIgnore]

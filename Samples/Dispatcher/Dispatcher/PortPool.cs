@@ -206,13 +206,13 @@ namespace Dispatcher
 				var port = writeAsyncRequest.servo.Port;
 
 				// make a list for this port if needed
-				if(!writeAsyncRequestsPerPorts.ContainsKey(port.Name))
+				if(!writeAsyncRequestsPerPorts.ContainsKey(port.Address))
 				{
-					writeAsyncRequestsPerPorts.Add(port.Name, new List<WriteAsyncRequest>());
+					writeAsyncRequestsPerPorts.Add(port.Address, new List<WriteAsyncRequest>());
 				}
 
 				// get the list for this port
-				var writeAsyncRequestsForThisPort = writeAsyncRequestsPerPorts[port.Name];
+				var writeAsyncRequestsForThisPort = writeAsyncRequestsPerPorts[port.Address];
 				writeAsyncRequestsForThisPort.Add(writeAsyncRequest);
 			}
 

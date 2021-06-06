@@ -149,6 +149,7 @@
     <Compile Include="Requests\Scheduler\Get.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\Servo\HomeAll.cs" />
     <Compile Include="Requests\Servo\MultiGet.cs" />
     <Compile Include="Requests\Servo\MultiMove.cs" />
     <Compile Include="Requests\Servo\MultiSet.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="Requests\Servo\SetRegister.cs" />
     <Compile Include="Requests\Servo\SetRegisterValue.cs" />
     <Compile Include="Requests\System\ShutdownAll.cs" />
+    <Compile Include="Requests\Servo\WalkLimits.cs" />
     <Compile Include="Safety\Constraints.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="Utils\ExceptionMessage.cs" />

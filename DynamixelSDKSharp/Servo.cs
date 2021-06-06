@@ -65,6 +65,8 @@ namespace DynamixelSDKSharp
 				var writeAsyncRequests = new List<WriteAsyncRequest>();
 				foreach (var iterator in registers)
 				{
+					this.Registers[iterator.Key].Value = iterator.Value.Value;
+
 					var writeAsyncRequest = new WriteAsyncRequest
 					{
 						servo = this,

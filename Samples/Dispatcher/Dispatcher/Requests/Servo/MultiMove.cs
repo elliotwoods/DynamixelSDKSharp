@@ -24,10 +24,11 @@ namespace Dispatcher.Requests.Servo
 
 		public int epsilon = 1;
 
-		public double timeout = 5.0f;
+		public double timeout = 20.0f;
 
 		public object Perform()
 		{
+			// Store the servos for readback
 			var servos = new List<DynamixelSDKSharp.Servo>();
 
 			var writeAsyncRequests = new List<WriteAsyncRequest>();
@@ -53,10 +54,13 @@ namespace Dispatcher.Requests.Servo
 						servo = servo
 						, registerType = RegisterType.GoalPosition
 					};
+					writeAsyncRequests.Add(writeAsyncRequest);
 
 					servos.Add(servo);
 				}
 			}
+
+			PortPool.X.WriteAsync(writeAsyncRequests);
 
 			// Wait until complete
 			if (this.waitUntilComplete)

@@ -4,7 +4,7 @@
 	},
 	"Schedules": [
 		{
-			"Period": 1,
+			"Period": 3600,
 			"Action": "System/CheckSafetyConstraints"
 		},
 		{

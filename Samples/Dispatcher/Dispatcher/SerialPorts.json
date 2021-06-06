@@ -10,23 +10,47 @@
 		"PortName": "North A",
 		"PortAddress": "COM11",
 		"Baud": 115200,
-		"Enabled": true
+		"Enabled": false
 	},
 	{
 		"PortName": "North B",
 		"PortAddress": "COM12",
 		"Baud": 115200,
-		"Enabled": true
+		"Enabled": false
 	},
 	{
 		"PortName": "North C",
 		"PortAddress": "COM13",
 		"Baud": 115200,
-		"Enabled": true
+		"Enabled": false
 	},
 	{
-		"PortName": "North D",
+		"PortName": "North Tower",
 		"PortAddress": "COM14",
+		"Baud": 115200,
+		"Enabled": false
+	},
+	{
+		"PortName": "South D",
+		"PortAddress": "COM15",
+		"Baud": 115200,
+		"Enabled": false
+	},
+	{
+		"PortName": "South E",
+		"PortAddress": "COM16",
+		"Baud": 115200,
+		"Enabled": false
+	},
+	{
+		"PortName": "South F",
+		"PortAddress": "COM17",
+		"Baud": 115200,
+		"Enabled": false
+	},
+	{
+		"PortName": "South Tower",
+		"PortAddress": "COM18",
 		"Baud": 115200,
 		"Enabled": true
 	}
