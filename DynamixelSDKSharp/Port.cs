@@ -217,10 +217,10 @@ namespace DynamixelSDKSharp
 		{
 			this.Servos.Clear();
 
-			this.Ping_ByModelNumber();
+			//this.Ping_ByModelNumber();
 
-			//this.Ping_Submit();
-			//this.Ping_HandleResults();
+			this.Ping_Submit();
+			this.Ping_HandleResults();
 		}
 
 		[JsonIgnore]

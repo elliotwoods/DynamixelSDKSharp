@@ -144,6 +144,8 @@ namespace Dispatcher
 				}
 			}
 
+			Console.WriteLine ("Found {0} servos in total across {1} ports", this.Servos.Count, this.Ports.Count);
+
 			//initialise settings on servos
 			this.InitialiseAll();
 		}
