@@ -12,7 +12,7 @@ namespace Dispatcher.Requests.Servo
 	class WalkLimits : IRequest
 	{
 		double timeToSpendAtLimit = 10.0;
-		int offset = 100;
+		int offset = 0;
 
 		public object Perform()
 		{
@@ -74,7 +74,7 @@ namespace Dispatcher.Requests.Servo
 			}
 
 			// Wait at limit
-			Thread.Sleep((int)(this.timeToSpendAtLimit * 1000.0));
+			Thread.Sleep((int)(this.timeToSpendAtLimit * 1000.0 * 2));
 
 			// Go to center
 			{
