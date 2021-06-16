@@ -217,10 +217,16 @@ namespace DynamixelSDKSharp
 		{
 			this.Servos.Clear();
 
-			//this.Ping_ByModelNumber();
+			// Slower strategy - ignores some communication errors during ping
+			{
+				this.Ping_ByModelNumber();
+			}
 
-			this.Ping_Submit();
-			this.Ping_HandleResults();
+			// Faster strategy
+			{
+				//this.Ping_Submit();
+				//this.Ping_HandleResults();
+			}
 		}
 
 		[JsonIgnore]

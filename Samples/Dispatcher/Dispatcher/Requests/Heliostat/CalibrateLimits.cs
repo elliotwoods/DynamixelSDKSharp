@@ -47,7 +47,7 @@ namespace Dispatcher.Requests.Heliostat
 		public int CurrentLimitAfterCalibration = 800;
 		public int Velocity = 10;
 		public double Timeout = 60;
-		public int EndOffset = 4096 * 2 / 360; // 2 degrees
+		public int EndOffset = 4096 * 3 / 360; // 3 degrees
 		public double Axis1AngleWhenCalibratingAxis2 = -90;
 		public int PositionEpsilon = 20; // we don't need to be accurate here
 		public int ProfileVelocity = 10;
