@@ -371,6 +371,7 @@ namespace HaloTestHarness
             } catch (Exception ex)
             {
                 WriteLineWithColor("Failed to find servos. Check wiring. Bailing.", ConsoleColor.Red);
+                WriteLineWithColor(ex.Message, ConsoleColor.Red);
                 Exit();
             }
 
