@@ -14,7 +14,7 @@
 		},
 		{
 			"RegisterType": "Present Input Voltage",
-			"MinValue": 110,
+			"MinValue": 90,
 			"MaxValue": 130,
 			"LogLevel": "Error",
 			"Action": "ShutdownOne"

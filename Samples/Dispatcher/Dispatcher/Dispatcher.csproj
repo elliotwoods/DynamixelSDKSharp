@@ -127,6 +127,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Requests\API.cs" />
+    <Compile Include="Requests\Calibrate\GetLimits.cs" />
+    <Compile Include="Requests\Heliostat\CalibrateLimits.cs" />
     <Compile Include="Requests\Calibrate\LogServoValues.cs" />
     <Compile Include="Requests\Calibrate\SetLimits.cs" />
     <Compile Include="Requests\Calibrate\SetLimitSize.cs" />
@@ -139,7 +141,6 @@
     <Compile Include="Requests\Group\Goto.cs" />
     <Compile Include="Requests\Data\LogRegisterAllServos.cs" />
     <Compile Include="Requests\Group\MoveAndLogAll.cs" />
-    <Compile Include="Requests\Heliostat\Calibrate.cs" />
     <Compile Include="Requests\Heliostat\NagivatePointToPoint.cs" />
     <Compile Include="Requests\Heliostat\NavigateHeliostatsPointToPoint.cs" />
     <Compile Include="Requests\Heliostat\NavigateToSolar.cs" />
@@ -147,11 +148,14 @@
     <Compile Include="Requests\Scheduler\Disable.cs" />
     <Compile Include="Requests\Scheduler\Enable.cs" />
     <Compile Include="Requests\Scheduler\Get.cs" />
+    <Compile Include="Requests\Servo\GetRegisterForAll.cs" />
     <Compile Include="Requests\Servo\GetRegisterValues.cs" />
     <Compile Include="Requests\Data\HighFrequencyRequest.cs" />
+    <Compile Include="Requests\Servo\HomeAll.cs" />
     <Compile Include="Requests\Servo\MultiGet.cs" />
     <Compile Include="Requests\Servo\MultiMove.cs" />
     <Compile Include="Requests\Servo\MultiSet.cs" />
+    <Compile Include="Requests\Servo\SetRegisterForAll.cs" />
     <Compile Include="Requests\System\Census.cs" />
     <Compile Include="Requests\System\CheckSafetyConstraints.cs" />
     <Compile Include="Requests\Data\Logger.cs" />
@@ -170,10 +174,12 @@
     <Compile Include="Requests\System\LogAllServoRegisters.cs" />
     <Compile Include="Requests\Servo\Move.cs" />
     <Compile Include="Requests\DoForAll\Nudge.cs" />
+    <Compile Include="Requests\System\Reboot.cs" />
     <Compile Include="Requests\System\Refresh.cs" />
     <Compile Include="Requests\Servo\SetRegister.cs" />
     <Compile Include="Requests\Servo\SetRegisterValue.cs" />
     <Compile Include="Requests\System\ShutdownAll.cs" />
+    <Compile Include="Requests\Servo\WalkLimits.cs" />
     <Compile Include="Safety\Constraints.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="Utils\ExceptionMessage.cs" />

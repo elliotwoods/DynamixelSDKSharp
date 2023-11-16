@@ -9,7 +9,7 @@
       <Value Profile="(Default)">230</Value>
     </Setting>
     <Setting Name="SerialPort" Type="System.String" Scope="User">
-      <Value Profile="(Default)">COM4</Value>
+      <Value Profile="(Default)">COM9</Value>
     </Setting>
     <Setting Name="BaudRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">115200</Value>

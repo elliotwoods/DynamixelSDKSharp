@@ -24,11 +24,14 @@ namespace Dispatcher.Requests.Servo
 
 		public int epsilon = 1;
 
-		public double timeout = 5.0f;
+		public double timeout = 20.0f;
 
 		public object Perform()
 		{
+			// Store the servos for readback
 			var servos = new List<DynamixelSDKSharp.Servo>();
+
+			var writeAsyncRequests = new List<WriteAsyncRequest>();
 
 			// Get the servos, store them, and send goal positions
 			{
@@ -42,11 +45,22 @@ namespace Dispatcher.Requests.Servo
 						throw (new Exception(String.Format("Position {0} out of range for servo {1}", movement.position, movement.servoID)));
 					}
 
-					// Write it to the servo
-					servo.WriteValue(RegisterType.GoalPosition, movement.position, false);
+					// Write it to the local servo
+					servo.Registers[RegisterType.GoalPosition].Value = movement.position;
+
+					// Add a request to push this variable
+					var writeAsyncRequest = new WriteAsyncRequest
+					{
+						servo = servo
+						, registerType = RegisterType.GoalPosition
+					};
+					writeAsyncRequests.Add(writeAsyncRequest);
+
 					servos.Add(servo);
 				}
 			}
+
+			PortPool.X.WriteAsync(writeAsyncRequests);
 
 			// Wait until complete
 			if (this.waitUntilComplete)

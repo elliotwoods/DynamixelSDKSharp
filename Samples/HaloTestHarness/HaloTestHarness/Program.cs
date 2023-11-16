@@ -74,7 +74,7 @@ namespace HaloTestHarness
         {
             Console.WriteLine("Storing {0} to EEPROM.", register.ToString());
 
-            servo.WriteValue(register, value, true);
+            servo.WriteValue(register, value);
             int readBack = servo.ReadValue(register);
 
             if (readBack == value)
@@ -90,7 +90,7 @@ namespace HaloTestHarness
 
         static void moveToPositionBlocking(Servo servo, int position)
         {
-            servo.WriteValue(RegisterType.GoalPosition, position, true);
+            servo.WriteValue(RegisterType.GoalPosition, position);
 
             while ((Math.Abs(servo.ReadValue(RegisterType.PresentPosition) - position) > Properties.Settings.Default.PositionEpsilon))
             {
@@ -178,8 +178,10 @@ namespace HaloTestHarness
         static void calibrate(Servo axis1Servo, Servo axis2Servo)
         {
             Console.WriteLine("Clearing axis limits.");
+            axis1Servo.WriteValue(RegisterType.OperatingMode, 3);
             axis1Servo.WriteValue(RegisterType.MinPositionLimit, 0);
             axis1Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
+            axis2Servo.WriteValue(RegisterType.OperatingMode, 3);
             axis2Servo.WriteValue(RegisterType.MinPositionLimit, 0);
             axis2Servo.WriteValue(RegisterType.MaxPositionLimit, 4095);
             Console.WriteLine();
@@ -370,8 +372,7 @@ namespace HaloTestHarness
                 dxl.Refresh();
             } catch (Exception ex)
             {
-                WriteLineWithColor("Failed to find servos. Check wiring. Bailing.", ConsoleColor.Red);
-                WriteLineWithColor(ex.Message, ConsoleColor.Red);
+                WriteLineWithColor(String.Format("Failed to find servos. Check wiring. Bailing. : {0}", ex.Message), ConsoleColor.Red);
                 Exit();
             }
 
@@ -408,8 +409,8 @@ namespace HaloTestHarness
             Console.WriteLine();
             try
             {
-                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0, true);
-                axis2Servo.WriteValue(RegisterType.TorqueEnable, 0, true);
+                axis1Servo.WriteValue(RegisterType.TorqueEnable, 0);
+                axis2Servo.WriteValue(RegisterType.TorqueEnable, 0);
             } catch (Exception ex)
             {
                 WriteLineWithColor("Dynamixel error: " + ex.Message, ConsoleColor.Red);

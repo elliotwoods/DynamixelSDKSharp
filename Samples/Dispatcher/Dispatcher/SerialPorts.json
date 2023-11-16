@@ -1,7 +1,57 @@
 ﻿[
 	{
-		"PortName" : "TestCable",
-		"PortAddress" : "COM9",
-		"Baud" : 115200
+		"PortName": "Test Cable",
+		"PortAddress": "COM9",
+		"Baud": 115200,
+		"Enabled": false
 	},
+
+	{
+		"PortName": "North A",
+		"PortAddress": "COM11",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "North B",
+		"PortAddress": "COM12",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "North C",
+		"PortAddress": "COM13",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "North Tower",
+		"PortAddress": "COM14",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "South D",
+		"PortAddress": "COM15",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "South E",
+		"PortAddress": "COM16",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "South F",
+		"PortAddress": "COM17",
+		"Baud": 115200,
+		"Enabled": true
+	},
+	{
+		"PortName": "South Tower",
+		"PortAddress": "COM18",
+		"Baud": 115200,
+		"Enabled": true
+	}
 ]
