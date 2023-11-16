@@ -40,14 +40,7 @@ namespace DynamixelSDKSharp
 			NullValueHandling = NullValueHandling.Ignore
 		};
 
-		public string PathToProductData
-		{
-			get
-			{
-				var exeFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-				return exeFolder + "/ProductDatabase/";
-			}
-		}
+		public const string PathToProductData = "./ProductDatabase/";
 
 		public List<ProductSpecification> ProductSpecifications { get; private set; } = new List<ProductSpecification>();
 

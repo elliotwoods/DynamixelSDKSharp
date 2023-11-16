@@ -21,6 +21,7 @@ namespace DynamixelSDKSharp
 			this.ProductSpecification = ProductDatabase.X.GetProductSpecification(modelNumber);
 
 			this.Registers = (Registers)this.ProductSpecification.Registers.Clone();
+			this.ReadAll();
 		}
 		
 		[JsonIgnore]
@@ -36,45 +37,51 @@ namespace DynamixelSDKSharp
 
 		public void WriteAll()
 		{
-			this.WriteRegisters(this.Registers, false);
+			foreach (var iterator in this.Registers)
+			{
+				this.Port.Write(this.ID, iterator.Value);
+			}
 		}
 
-		public void WriteValue(Register newValue)
+		public void WriteValue(Register newValue, bool sync = false)
 		{
-			this.WriteValue(newValue.RegisterType, newValue.Value);
-		}
-
-		public void WriteValue(RegisterType registerType, int value)
-		{
-			var register = this.Registers[registerType];
-			register.Value = value;
-			this.Port.WriteSync(this.ID, register);
+			this.WriteValue(newValue.RegisterType, newValue.Value, sync);
 		}
 
 		public void WriteRegisters(Registers registers, bool sync = false)
 		{
-			if(sync)
+			var registersToWrite = new Registers();
+			foreach(var register in registers)
 			{
-				foreach(var iterator in registers)
-				{
-					this.Port.WriteSync(this.ID, iterator.Value);
-				}
+				//update our local register
+				var ourRegister = this.Registers[register.Key];
+				ourRegister.Value = register.Value.Value;
+
+				//use our register for the write operations
+				registersToWrite.Add(register.Key, ourRegister);
+			}
+
+			if (sync)
+			{
+				this.Port.Write(this.ID, registersToWrite);
 			}
 			else
 			{
-				var writeAsyncRequests = new List<WriteAsyncRequest>();
-				foreach (var iterator in registers)
-				{
-					this.Registers[iterator.Key].Value = iterator.Value.Value;
+				this.Port.WriteAsync(this.ID, registersToWrite);
+			}
+		}
 
-					var writeAsyncRequest = new WriteAsyncRequest
-					{
-						servo = this,
-						registerType = iterator.Key
-					};
-					writeAsyncRequests.Add(writeAsyncRequest);
-				}
-				this.Port.WriteAsync(writeAsyncRequests);
+		public void WriteValue(RegisterType registerType, int value, bool sync = false)
+		{
+			var register = this.Registers[registerType];
+			register.Value = value;
+			if (sync)
+			{
+				this.Port.Write(this.ID, register);
+			}
+			else
+			{
+				this.Port.WriteAsync(this.ID, register);
 			}
 		}
 
@@ -89,11 +96,6 @@ namespace DynamixelSDKSharp
 		{
 			var register = this.ReadRegister(registerType);
 			return register.Value;
-		}
-
-		public void Reboot()
-		{
-			this.Port.Reboot(this.ID);
 		}
 	}
 }

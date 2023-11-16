@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DynamixelSDKSharp
@@ -28,22 +26,21 @@ namespace DynamixelSDKSharp
 		BaudRate_4_5M = 4500000
 	}
 
-	[DebuggerDisplay("Name = {Name}, Address = {Address}, IsOpen = {IsOpen}")]
 	public class Port : IDisposable
 	{
 		public bool IsOpen { get; private set; }
 		public string Name { get; set; }
 		public string Address { get; private set; }
 
-		private int FPortNumber;
-
-		private static bool FPacketHandlerInitialised = false;
+		WorkerThread FWorkerThread;
+		int FPortNumber;
 
 		public ProtocolVersion ProtocolVersion = ProtocolVersion.ProtocolVersion_2;
 
-		private Dictionary<byte, Servo> FServos = new Dictionary<byte, Servo>();
+		//when writing async, we want to overwrite any registers in the outbox as we go along
+		private Dictionary<byte, Registers> Outbox = new Dictionary<byte, Registers>();
 
-		static int MaximumGroupRequests = 8;
+		private Dictionary<byte, Servo> FServos = new Dictionary<byte, Servo>();
 
 		private void ThrowIfNotOpen()
 		{
@@ -57,7 +54,6 @@ namespace DynamixelSDKSharp
 		{
 			this.Name = portAddress;
 			this.Address = portAddress;
-			this.BaudRate = baudRate;
 
 			try
 			{
@@ -68,7 +64,7 @@ namespace DynamixelSDKSharp
 				NativeFunctions.packetHandler();
 
 				//Note that we don't call NativeFunctions.openPort() here because setting the baud rate achieves the same thing in the Dynamixel SDK.
-				//NativeFunctions.setBaudRate(this.FPortNumber, (int)baudRate);
+				NativeFunctions.setBaudRate(FPortNumber, (int)baudRate);
 
 				this.IsOpen = true;
 			}
@@ -78,154 +74,80 @@ namespace DynamixelSDKSharp
 				this.IsOpen = false;
 				throw (e);
 			}
+
+			this.FWorkerThread = new WorkerThread("Port " + portAddress);
+
 		}
 
-		public BaudRate BaudRate { get; set; } = BaudRate.BaudRate_57600;
-
-		public void Open()
+		public BaudRate BaudRate
 		{
-			// This causes an open
-			if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)this.BaudRate)))
+			get
 			{
-				throw (new Exception("Failed to set baud rate"));
-			}
-		}
-
-		public void Ping_Submit()
-		{
-			//send ping
-			NativeFunctions.broadcastPing(this.FPortNumber, (int)this.ProtocolVersion);
-			var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
-			if (result != NativeFunctions.COMM_SUCCESS)
-			{
-				var exceptionString = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-				throw (new Exception("Ping_Submit : " + exceptionString));
-			}
-		}
-
-		private void AddServo(byte servoID)
-		{
-			var modelNumber = this.Read(servoID, 0, 2);
-			var servo = new Servo(this, servoID, modelNumber);
-			this.FServos.Add(servoID, servo);
-		}
-
-		public void Ping_HandleResults()
-		{
-			List<byte> foundServoIDs = new List<byte>();
-
-			//get ping results
-			for (byte id = 0; id < NativeFunctions.MAX_ID; id++)
-			{
-				if (NativeFunctions.getBroadcastPingResult(this.FPortNumber, (int)this.ProtocolVersion, (int)id))
-				{
-					var modelNum = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, id);
-					foundServoIDs.Add(id);
-				}
+				this.ThrowIfNotOpen();
+				int baudRateNumber = 0;
+				this.FWorkerThread.DoSync(() => {
+					baudRateNumber = NativeFunctions.getBaudRate(this.FPortNumber);
+				});
+				return (BaudRate)baudRateNumber;
 			}
 
-			//add new found servos
-			foreach (var servoID in foundServoIDs)
+			set
 			{
-				if (!this.FServos.ContainsKey(servoID))
-				{
-					// Try reset if it's in hardware error state
-					try
+				this.ThrowIfNotOpen();
+				this.FWorkerThread.DoSync(() => {
+					if (!(NativeFunctions.setBaudRate(this.FPortNumber, (int)value)))
 					{
-						this.AddServo(servoID);
+						throw (new Exception("Failed to set baud rate"));
 					}
-					catch(Exception e)
-					{
-						Console.WriteLine(String.Format("Rebooting ({0}) on ({1})", servoID, this.Name));
-
-						this.Reboot(servoID);
-						Thread.Sleep(3000);
-
-						this.AddServo(servoID);
-					}
-				}
-			}
-
-			//remove any servos not seen any more
-			{
-				var toRemove = this.FServos.Where(pair => !foundServoIDs.Contains((byte)pair.Key))
-								.Select(pair => pair.Key)
-								.ToList();
-				foreach (var key in toRemove)
-				{
-					this.FServos.Remove(key);
-				}
-			}
-		}
-
-		public void Ping_ByModelNumber()
-		{
-			List<byte> foundServoIDs = new List<byte>();
-
-			//get ping results
-			for (byte servoID = 0; servoID < NativeFunctions.MAX_ID; servoID++)
-			{
-				try
-				{
-					var modelNumber = NativeFunctions.pingGetModelNum(this.FPortNumber, (int)this.ProtocolVersion, servoID);
-					if (modelNumber != 0)
-					{
-						var servo = new Servo(this, servoID, modelNumber);
-						this.FServos.Add(servoID, servo);
-						foundServoIDs.Add(servoID);
-					}
-				}
-				catch(Exception e)
-				{
-					Console.WriteLine(e.Message);
-				}
-				
-			}
-
-			// Reboot any that are in hardware error state
-			{
-				bool needsReboot = false;
-				foreach(var iterator in this.Servos)
-				{
-					var servo = iterator.Value;
-					if(servo.ReadValue(RegisterType.HardwareErrorStatus) != 0)
-					{
-						servo.Reboot();
-						needsReboot = true;
-					}
-				}
-
-				if(needsReboot)
-				{
-					Thread.Sleep(3000);
-				}
-			}
-
-			//remove any servos not seen any more
-			{
-				var toRemove = this.FServos.Where(pair => !foundServoIDs.Contains((byte)pair.Key))
-								.Select(pair => pair.Key)
-								.ToList();
-				foreach (var key in toRemove)
-				{
-					this.FServos.Remove(key);
-				}
+				});
 			}
 		}
 
 		public void Refresh()
 		{
-			this.Servos.Clear();
+			List<byte> foundServoIDs = new List<byte>();
 
-			// Slower strategy - ignores some communication errors during ping
+			this.FWorkerThread.DoSync(() =>
 			{
-				this.Ping_ByModelNumber();
+				//send ping
+				NativeFunctions.broadcastPing(this.FPortNumber, (int)this.ProtocolVersion);
+				var result = NativeFunctions.getLastTxRxResult(this.FPortNumber, (int)this.ProtocolVersion);
+				if (result != NativeFunctions.COMM_SUCCESS)
+				{
+					var exceptionString = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
+					throw (new Exception("getTxRxResult : " + exceptionString));
+				}
+
+				//get ping results
+				for (byte id = 0; id < NativeFunctions.MAX_ID; id++)
+				{
+					if (NativeFunctions.getBroadcastPingResult(this.FPortNumber, (int)this.ProtocolVersion, (int)id))
+					{
+						foundServoIDs.Add(id);
+					}
+				}
+			});
+
+			//add new found servos
+			foreach(var servoID in foundServoIDs)
+			{
+				if(!this.FServos.ContainsKey(servoID))
+				{
+					var modelNumber = this.Read(servoID, 0, 2);
+					var servo = new Servo(this, servoID, modelNumber);
+					this.FServos.Add(servoID, servo);
+				}
 			}
 
-			// Faster strategy
+			//remove any servos not seen any more
 			{
-				//this.Ping_Submit();
-				//this.Ping_HandleResults();
+				var toRemove = this.FServos.Where(pair => !foundServoIDs.Contains((byte)pair.Key))
+								.Select(pair => pair.Key)
+								.ToList();
+				foreach(var key in toRemove)
+				{
+					this.FServos.Remove(key);
+				}
 			}
 		}
 
@@ -253,21 +175,21 @@ namespace DynamixelSDKSharp
 				if (result != (int)NativeFunctions.COMM_SUCCESS)
 				{
 					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getTxRxResult((int)this.ProtocolVersion, result));
-					throw (new Exception("getLastTxRxResult : " + errorMessage));
+					throw (new Exception("getTxRxResult : " + errorMessage));
 				}
 			}
 
-			//{
-			//	var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
-			//	if (error != 0)
-			//	{
-			//		var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
-			//		throw (new Exception("getLastRxPacketError : " + errorMessage));
-			//	}
-			//}
+			{
+				var error = NativeFunctions.getLastRxPacketError(this.FPortNumber, (int)this.ProtocolVersion);
+				if (error != 0)
+				{
+					var errorMessage = Marshal.PtrToStringAnsi(NativeFunctions.getRxPacketError((int)this.ProtocolVersion, error));
+					throw (new Exception("getRxPacketError : " + errorMessage));
+				}
+			}
 		}
 
-		public void WriteSync(byte id, Register register)
+		private void WriteOnThread(byte id, Register register)
 		{
 			switch (register.Size)
 			{
@@ -299,236 +221,131 @@ namespace DynamixelSDKSharp
 			this.CheckTxRxErrors();
 		}
 
-		public void WriteSync(List<Servo> servos, RegisterType registerType)
+		public void Write(byte id, Register register)
 		{
-			if(servos.Count == 0)
-			{
-				return;
-			}
-
-			// We presume that all servos are of the same type
-			var registerSize = (ushort) servos[0].Registers[registerType].Size;
-
-			// Open the group write
-			var groupNum = NativeFunctions.groupSyncWrite(this.FPortNumber
-				, (int)this.ProtocolVersion
-				, servos[0].Registers[registerType].Address
-				, registerSize);
-
-			// Fill the group write
-			foreach(var servo in servos)
-			{
-				var result = NativeFunctions.groupSyncWriteAddParam(groupNum
-					, servo.ID
-					, (UInt32) servo.Registers[registerType].Value
-					, registerSize);
-				if(!result)
-				{
-					throw (new Exception("groupSyncWriteAddParam failed"));
-				}
-			}
-
-			// Push the group write
-			NativeFunctions.groupSyncWriteTxPacket(groupNum);
-
-			// Check for errors
-			this.CheckTxRxErrors();
-
-			// Clear the parameter storage
-			NativeFunctions.groupSyncWriteClearParam(groupNum);
-		}
-
-		class WriteAsyncBlock
-		{
-			public class Entry
-			{
-				public int Value;
-				public ushort Size;
-			}
-
-			public byte servoID;
-			public ushort StartAddress;
-			public List<Entry> Entries = new List<Entry>();
-
-			public ushort CurrentAddress
-			{
-				get
-				{
-					return (ushort)(this.StartAddress + this.DataLength);
-				}
-			}
-
-			public ushort DataLength
-			{
-				get
-				{
-					ushort length = 0;
-					foreach (var entry in this.Entries)
-					{
-						length += entry.Size;
-					}
-					return length;
-				}
-			}
-		}
-
-		void WriteAsync(IEnumerable<WriteAsyncBlock> writeAsyncBlocks)
-		{
-			// We can only handle a max count in one request, so split it if needed
-			{
-				var writeAsyncBlocksList = writeAsyncBlocks.ToList();
-				if (writeAsyncBlocksList.Count > Port.MaximumGroupRequests)
-				{
-					var splitList = writeAsyncBlocksList
-						.Select((x, i) => new { Index = i, Value = x })
-						.GroupBy(x => x.Index / Port.MaximumGroupRequests)
-						.Select(x => x.Select(v => v.Value).ToList())
-						.ToList();
-
-					foreach (var subList in splitList)
-					{
-						this.WriteAsync(subList);
-					}
-
-					return;
-				}
-			}
-
 			this.ThrowIfNotOpen();
 
-			// Initialise the group write
-			var groupNum = NativeFunctions.groupBulkWrite(this.FPortNumber
-				, (int)this.ProtocolVersion);
-
-
-			foreach(var block in writeAsyncBlocks)
-			{
-				// Add the first entry in the block
-				{
-					var result = NativeFunctions.groupBulkWriteAddParam(groupNum
-					, block.servoID
-					, block.StartAddress
-					, block.DataLength
-					, (UInt32)block.Entries[0].Value
-					, block.Entries[0].Size);
-					if (!result)
-					{
-						throw (new Exception("Failed to write first block in groupBulkWriteAddParam"));
-					}
-				}
-
-				var position = block.Entries[0].Size;
-
-				// Add the remaining entries
-				for(int i=1; i<block.Entries.Count; i++)
-				{
-					{
-						var result = NativeFunctions.groupBulkWriteChangeParam(groupNum
-						, block.servoID
-						, block.StartAddress
-						, block.DataLength
-						, (UInt32)block.Entries[i].Value
-						, block.Entries[i].Size
-						, (ushort)position);
-
-						if (!result)
-						{
-							throw (new Exception(String.Format("Failed to write ({0}) block in groupBulkWriteChangeParam", position)));
-						}
-					}
-					position += block.Entries[i].Size;
-				}
-			}
-
-			// Push the group write
-			NativeFunctions.groupBulkWriteTxPacket(groupNum);
-
-			// Check for errors
-			this.CheckTxRxErrors();
-
-			// Clear the parameter storage
-			NativeFunctions.groupBulkWriteClearParam(groupNum);
+			this.FWorkerThread.DoSync(() => {
+				WriteOnThread(id, register);
+			});
 		}
 
-		public void WriteAsync(IEnumerable<WriteAsyncRequest> writeAsyncRequests)
+		public void Write(byte id, Registers registers)
 		{
-			var sortedRequests = writeAsyncRequests.ToList();
-			sortedRequests.Sort((request1, request2) =>
-				request1.Address.CompareTo(request2.Address));
+			this.ThrowIfNotOpen();
 
-			var blocksForAllServos = new Dictionary<byte, List<WriteAsyncBlock>>();
+			var registersCopy = registers.Clone() as Registers;
 
-			// Gather request blocks for each servo
-			foreach(var request in sortedRequests)
-			{
-				// Make list of blocks for this servo if none allocated
-				if(!blocksForAllServos.ContainsKey(request.servo.ID))
+			this.FWorkerThread.DoSync(() => {
+				foreach(var register in registersCopy.Values)
 				{
-					blocksForAllServos.Add(request.servo.ID, new List<WriteAsyncBlock>());
+					WriteOnThread(id, register);
+				}
+			});
+		}
+
+		private void WriteOutboxAsync()
+		{
+			this.FWorkerThread.Do(() => {
+				Dictionary<byte, Registers> outboxCopy;
+				lock (this.Outbox)
+				{
+					outboxCopy = this.Outbox;
+					this.Outbox = new Dictionary<byte, Registers>();
 				}
 
-				var blocks = blocksForAllServos[request.servo.ID];
-
-				// Check if we can add this address to any existing block
-				bool foundBlock = false;
-				foreach (var block in blocks)
+				foreach (var outboxIterator in outboxCopy)
 				{
-					if(block.CurrentAddress == request.Address)
+					var registers = outboxIterator.Value;
+					foreach (var registerIterator in registers)
 					{
-						block.Entries.Add(new WriteAsyncBlock.Entry
+						try
 						{
-							Value = request.Value
-							, Size = request.Size
-						});
-						foundBlock = true;
-						break;
+							WriteOnThread(outboxIterator.Key, registerIterator.Value);
+						}
+						catch (Exception e)
+						{
+							Console.WriteLine("Exception writing {0}={1} on Servo #{2} : {3}"
+								, registerIterator.Value.RegisterType.ToString()
+								, registerIterator.Value.Value
+								, outboxIterator.Key
+								, e.Message);
+						}
 					}
 				}
+			});
+		}
 
-				// Make a new block if one not already matching
-				if(!foundBlock)
-				{
-					var block = new WriteAsyncBlock();
-					block.servoID = request.servo.ID;
-					block.StartAddress = request.Address;
-					block.Entries.Add(new WriteAsyncBlock.Entry
-					{
-						Value = request.Value
-						, Size = request.Size
-					});
-					blocks.Add(block);
-				}
-			}
+		public void WriteAsync(byte id, Register register)
+		{
+			this.ThrowIfNotOpen();
 
-			// Execute the request blocks
-			// We must gather sets of blocks that contain each servo no more than once
-			while(blocksForAllServos.Count != 0)
+			//add the register to the outbox
+			lock(this.Outbox)
 			{
-				// Gather a set of blocks for different servos
-				var blocks = new List<WriteAsyncBlock>();
-
-				var blockSet = new List<WriteAsyncBlock>();
-
-				// Take the last entry for each servo
-				foreach(var iterator in blocksForAllServos)
+				//get the outbox registers set
+				Registers registers = null;
+				if(this.Outbox.ContainsKey(id))
 				{
-					blockSet.Add(iterator.Value[iterator.Value.Count - 1]);
+					registers = this.Outbox[id];
+				}
+				else
+				{
+					registers = new Registers();
+					this.Outbox.Add(id, registers);
 				}
 
-				// Execute the block set
-				this.WriteAsync(blockSet);
-
-				// Remove last entry from each blockSet
-				foreach(var iterator in blocksForAllServos)
+				//add this register to outbox registers set
+				if (registers.ContainsKey(register.RegisterType))
 				{
-					iterator.Value.RemoveAt(iterator.Value.Count - 1);
+					//Overwrite value if we already have it in the outbox
+					registers[register.RegisterType] = register.Clone() as Register;
 				}
-
-				// Strip empty sets (rebuild dictionary)
-				blocksForAllServos = blocksForAllServos.Where(pair => pair.Value.Count > 0)
-								 .ToDictionary(pair => pair.Key,
-											   pair => pair.Value);
+				else
+				{
+					registers.Add(register.RegisterType, register.Clone() as Register);
+				}
 			}
+
+			//write the outbox
+			this.WriteOutboxAsync();
+		}
+
+		public void WriteAsync(byte id, Registers registers)
+		{
+			this.ThrowIfNotOpen();
+
+			//add the register to the outbox
+			lock (this.Outbox)
+			{
+				//get the outbox registers set
+				Registers outboxRegisters = null;
+				if (this.Outbox.ContainsKey(id))
+				{
+					outboxRegisters = this.Outbox[id];
+				}
+				else
+				{
+					outboxRegisters = new Registers();
+					this.Outbox.Add(id, outboxRegisters);
+				}
+
+				//copy all the registers into the outbox registers set
+				foreach(var registerIterator in registers)
+				{
+					if (outboxRegisters.ContainsKey(registerIterator.Key))
+					{
+						outboxRegisters[registerIterator.Key] = registerIterator.Value.Clone() as Register;
+					}
+					else
+					{
+						outboxRegisters.Add(registerIterator.Key, registerIterator.Value.Clone() as Register);
+					}
+				}
+			}
+
+			//write the outbox
+			this.WriteOutboxAsync();
 		}
 
 		public void Read(byte id, Register register)
@@ -536,132 +353,92 @@ namespace DynamixelSDKSharp
 			register.Value = this.Read(id, register.Address, register.Size);
 		}
 
-		public int Read(Servo servo, RegisterType registerType)
-		{
-			var register = servo.Registers[registerType];
-			return this.Read(servo.ID, register.Address, register.Size);
-		}
-
 		public int Read(byte id, ushort address, int size)
 		{
 			this.ThrowIfNotOpen();
 			int value = 0;
-			switch (size)
+			this.FWorkerThread.DoSync(() =>
 			{
-				case 1:
-					value = (int)NativeFunctions.read1ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, address);
-					break;
-				case 2:
-					value = (int)NativeFunctions.read2ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, address);
-					break;
-				case 4:
-					value = (int)NativeFunctions.read4ByteTxRx(this.FPortNumber
-						, (int)this.ProtocolVersion
-						, id
-						, address);
-					break;
-				default:
-					throw (new Exception(String.Format("Size {0} not supported for register size", size)));
-			}
+				switch (size)
+				{
+					case 1:
+						value = (int)NativeFunctions.read1ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, address);
+						break;
+					case 2:
+						value = (int)NativeFunctions.read2ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, address);
+						break;
+					case 4:
+						value = (int)NativeFunctions.read4ByteTxRx(this.FPortNumber
+							, (int)this.ProtocolVersion
+							, id
+							, address);
+						break;
+					default:
+						throw (new Exception(String.Format("Size {0} not supported for register size", size)));
+				}
 
-			this.CheckTxRxErrors();
+				this.CheckTxRxErrors();
+			});
 
 			return value;
 		}
 
-		public List<int> ReadGroup(IEnumerable<Servo> servos, RegisterType registerType)
+		public Dictionary<byte, int> GroupSyncRead(IEnumerable<byte> ids, ushort address, int size)
 		{
-			// We can only handle a max count in one request, so split it
+			var results = new Dictionary<byte, int>();
+			this.FWorkerThread.DoSync(() =>
 			{
-				var servosList = servos.ToList();
-				if (servosList.Count > Port.MaximumGroupRequests)
+				var groupNumber = NativeFunctions.groupSyncRead(this.FPortNumber
+					, (int)this.ProtocolVersion
+					, address
+					, (ushort) size);
+				
+				foreach(var id in ids)
 				{
-					var splitList = servos
-						.Select((x, i) => new { Index = i, Value = x })
-						.GroupBy(x => x.Index / Port.MaximumGroupRequests)
-						.Select(x => x.Select(v => v.Value).ToList())
-						.ToList();
-
-					var resultsFromSplit = new List<int>();
-					foreach(var subList in splitList)
+					if(!NativeFunctions.groupSyncReadAddParam(groupNumber, id))
 					{
-						var subResults = this.ReadGroup(subList, registerType);
-						resultsFromSplit = resultsFromSplit.Concat(subResults).ToList();
+						throw (new Exception(String.Format("Failed to add Servo {0} to GroupSyncRead request", id)));
 					}
-					return resultsFromSplit;
 				}
-			}
 
-			this.ThrowIfNotOpen();
+				NativeFunctions.groupSyncReadTxRxPacket(groupNumber);
+				this.CheckTxRxErrors();
 
-			// Initialise the group write
-			var groupNum = NativeFunctions.groupBulkRead(this.FPortNumber
-				, (int)this.ProtocolVersion);
-
-			// Populate the request
-			foreach (var servo in servos)
-			{
-				var register = servo.Registers[registerType];
-				var result = NativeFunctions.groupBulkReadAddParam(groupNum
-					, servo.ID
-					, register.Address
-					, (ushort) register.Size);
-				if (!result)
+				foreach(var id in ids)
 				{
-					throw (new Exception("groupBulkReadAddParam failed"));
+					if (!NativeFunctions.groupSyncReadIsAvailable(groupNumber
+						, id
+						, address
+						, (ushort)size))
+					{
+						throw (new Exception(String.Format("Group sync read is not available for Servo {0} on register address {1}"
+							, id
+							, address)));
+					}
+
+					results.Add(id, (int) NativeFunctions.groupSyncReadGetData(groupNumber
+						, id
+						, address
+						, (ushort)size));
 				}
-			}
-
-			// Push the group read
-			NativeFunctions.groupBulkReadTxRxPacket(groupNum);
-
-			// Check for errors
-			this.CheckTxRxErrors();
-
-			// Get the data back out
-			var results = new List<int>();
-			foreach(var servo in servos)
-			{
-				var register = servo.Registers[registerType];
-				if(!NativeFunctions.groupBulkReadIsAvailable(groupNum
-					, servo.ID
-					, register.Address
-					, register.Size))
-				{
-					throw (new Exception("groupBulkReadIsAvailable returns false"));
-				}
-
-				var result = (int) NativeFunctions.groupBulkReadGetData(groupNum
-					, servo.ID
-					, register.Address
-					, register.Size);
-
-				results.Add(result);
-			}
-
-			// Clear the parameter storage
-			NativeFunctions.groupBulkReadClearParam(groupNum);
+			});
 
 			return results;
-		}
-
-		public void Reboot(byte servoID)
-		{
-			NativeFunctions.reboot(this.FPortNumber, (int) this.ProtocolVersion, servoID);
-			this.CheckTxRxErrors();
 		}
 
 		public void Close()
 		{
 			this.ThrowIfNotOpen();
-			NativeFunctions.closePort(this.FPortNumber);
-			this.IsOpen = false;
+			this.FWorkerThread.DoSync(() =>
+			{
+				NativeFunctions.closePort(this.FPortNumber);
+			});
 		}
 
 		#region IDisposable Support
@@ -671,9 +448,15 @@ namespace DynamixelSDKSharp
 		{
 			if (!disposedValue)
 			{
+				if (disposing)
+				{
+					this.FWorkerThread.Join();
+				}
+
+				this.FWorkerThread = null;
 				if(this.IsOpen)
 				{
-					this.Close();
+					NativeFunctions.closePort(this.FPortNumber);
 				}
 
 				disposedValue = true;
